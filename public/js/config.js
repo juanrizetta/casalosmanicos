@@ -71,19 +71,3 @@ const CONFIG = {
         ]
     }
 };
-// This function will automatically apply the changes to the page
-document.addEventListener('DOMContentLoaded', () => {
-    // Update basic text
-    document.title = `${CONFIG.title} | Alojamiento Turístico Único`;
-    document.querySelector('.logo').innerText = CONFIG.title.toUpperCase();
-    document.querySelector('.hero-content h1').innerText = CONFIG.tagline;
-    document.querySelector('.hero-content p').innerText = CONFIG.description;
-
-    // Update contact info
-    const contactSection = document.getElementById('contacto');
-    if (contactSection) {
-        contactSection.querySelector('p:nth-of-type(2)').innerHTML = `📍 ${CONFIG.contact.address}`;
-        contactSection.querySelector('p:nth-of-type(3)').innerHTML = `📞 ${CONFIG.contact.phone}`;
-        contactSection.querySelector('p:nth-of-type(4)').innerHTML = `✉️ ${CONFIG.contact.email}`;
-    }
-});
