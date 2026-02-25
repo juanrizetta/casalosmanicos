@@ -1,14 +1,12 @@
-# Walkthrough: Casa Los Manicos Project
+# Walkthrough: Casa Rural Los Manicos
 
-He completado el proyecto para la página web de tu alojamiento turístico. Aquí tienes un resumen de lo que hemos construido y cómo ponerlo en marcha.
+Este documento detalla el funcionamiento, la estructura y las características de la nueva web para el alojamiento turístico "Casa Rural Los Manicos".
 
 ## 1. Estructura del Proyecto
-- `scripts/setup_vps.sh`: Script para configurar tu servidor Ubuntu con Nginx de forma ligera y segura.
-- `public/`: Directorio raíz de la web.
-    - `index.html`: Estructura principal moderna y responsiva.
-    - `css/styles.css`: Diseño premium con efectos de vidrio (glassmorphism) y tipografía cuidada.
-    - `js/config.js`: **Aquí es donde puedes cambiar los textos e imágenes fácilmente.**
-    - `assets/`: Carpeta con las fotos (he generado unas fotos de ejemplo espectaculares).
+- `public/`: Contiene los archivos de la web (HTML, CSS y JS).
+- `public/assets/`: Imágenes de alta calidad (habitaciones, exteriores, etc.).
+- `public/js/config.js`: **Archivo clave** donde se gestiona todo el contenido.
+- `scripts/setup_vps.sh`: Script de automatización para tu servidor Ubuntu.
 
 ## 2. Inicialización del VPS
 Para configurar tu VPS, sigue estos pasos:
@@ -17,70 +15,44 @@ Para configurar tu VPS, sigue estos pasos:
 3. Ejecuta: `bash scripts/setup_vps.sh`.
 4. El script creará el usuario **juanri**, configurará Git para sincronizar el repo mediante el token y creará un **enlace simbólico** de la web. De esta forma, cada vez que hagas un `git pull` en el servidor, la web se actualizará automáticamente.
 
-## 3. Personalización Fácil
+## 3. Personalización Fácil (config.js)
 No necesitas editar el código HTML para cambiar lo básico. Abre [config.js](public/js/config.js) y verás una estructura como esta:
-
 ```javascript
 const CONFIG = {
-    title: "Casa Los Manicos",
-    tagline: "Tu Refugio Privado",
-    contact: {
-        address: "Calle Principal 123...",
-        // ...
-    }
-};
+    title: "Casa Rural Los Manicos",
+    tagline: "Tu Refugio en Moratalla",
+    // ...
+}
 ```
 Simplemente cambia los valores entre comillas y guarda el archivo.
 
-## 4. Diseño Visual
-La web incluye:
-- **Efecto Glassmorphism**: La cabecera se vuelve translúcida al hacer scroll.
-- **Diseño Mobile-First**: Se ve perfecto en móviles y tablets.
-- **Imágenes de Alta Calidad**: He incluido placeholders realistas basados en tu descripción.
+## 4. Gestión de Precios Dinámicos
+Hemos sustituido la sección de galería estática por una **Sección de Precios** dinámica que se alimenta íntegramente de [config.js](public/js/config.js).
+- **Temporadas**: Soporta configuración de Temporada Baja y Alta.
+- **Flexibilidad**: Los precios se ajustan automáticamente según el número de personas, incluyendo el coste por persona extra.
+- **Diseño**: Las tablas tienen un diseño moderno con efectos de glassmorphism.
 
-![Hero Image](public/assets/hero.png)
-*Vista previa del diseño Hero*
-
-![Interior](public/assets/interior_1.png)
-*Vista previa de los interiores*
-
-### 📹 Demostración Visual
-He generado una grabación de la navegación por la página y capturas de las diferentes secciones para que puedas ver el resultado final:
-
-![Navegación Web](/home/juanri/.gemini/antigravity/brain/b18035ff-8eeb-4dcb-b481-bd5d59d902e4/casalosmanicos_preview_1772027483147.webp)
-*Grabación de la navegación por el sitio*
-
-````carousel
-![Servicios](/home/juanri/.gemini/antigravity/brain/b18035ff-8eeb-4dcb-b481-bd5d59d902e4/servicios_section_1772027503200.png)
-<!-- slide -->
-![Galería y Contacto](/home/juanri/.gemini/antigravity/brain/b18035ff-8eeb-4dcb-b481-bd5d59d902e4/galeria_and_footer_1772027519381.png)
-````
+### Vista de las Tarifas
+![Sección de Precios configurada](file:///home/juanri/.gemini/antigravity/brain/b18035ff-8eeb-4dcb-b481-bd5d59d902e4/precios_section_1772047974038.png)
 
 ## 5. Caruseles de Imágenes
 Hemos implementado carruseles dinámicos en la sección "Nuestra Propuesta".
-- **Interacción**: Los carruseles cambian de imagen automáticamente cada 5-7 segundos para dar dinamismo a la web.
-- **Control Manual**: El usuario puede usar las flechas laterales o los puntos indicadores para navegar por las fotos.
-- **Personalización**: Las imágenes se configuran fácilmente desde [config.js](public/js/config.js).
+- **Interacción**: Los carruseles cambian de imagen automáticamente cada 5-7 segundos.
+- **Control Manual**: El usuario puede usar las flechas laterales o los puntos indicadores.
 
 ### Vista Previa de los Carruseles
-A continuación puedes ver cómo han quedado integrados los carruseles en la web:
-
 ![Carruseles en la sección Nuestra Propuesta](file:///home/juanri/.gemini/antigravity/brain/b18035ff-8eeb-4dcb-b481-bd5d59d902e4/nuestra_propuesta_carousels_1772046091329.png)
 
-### Video de Navegación por Carruseles
-En este video se observa el funcionamiento de los controles y las transiciones suaves entre imágenes:
-
+### Video de Funcionamiento
 ![Video de demostración de carruseles](file:///home/juanri/.gemini/antigravity/brain/b18035ff-8eeb-4dcb-b481-bd5d59d902e4/casalosmanicos_carousels_previewheader_1772045991934.webp)
 
-## 6. SSL y Seguridad Automática
-El despliegue incluye seguridad completa desde el primer momento:
-- **HTTPS Automático**: El script utiliza Certbot para obtener un certificado de Let's Encrypt sin intervención manual (siempre que el dominio ya esté apuntando al servidor).
-- **Redirección Forzada**: Toda visita a `http://` será redirigida automáticamente a `https://` para proteger a tus usuarios.
-- **Mantenimiento Cero**: Se incluye una tarea programada que renueva el certificado antes de que caduque.
+## 6. SSL Automático y Seguridad
+El script [setup_vps.sh](scripts/setup_vps.sh) incluye la automatización de **Let's Encrypt**:
+- **HTTPS**: Configura automáticamente el servidor para usar TLS.
+- **Redirección**: Fuerza todo el tráfico a HTTPS de forma segura.
+- **Idempotencia**: Solo solicita el certificado si no existe o si le quedan menos de 30 días de validez.
 
 ## 7. Próximos Pasos
-1. **Sincronización**: Realiza un `git pull` en tu VPS para recibir estos cambios. como el directorio público es un enlace simbólico, la web se actualizará al instante.
-2. **Imágenes Reales**: Sustituye los placeholders en `public/assets/` con tus fotos definitivas manteniendo los nombres de archivo (`interior_2.png`, etc.) o actualiza las rutas en `config.js`.
-3. Sube el contenido de la carpeta `public/` a `/var/www/casalosmanicos.com` en tu VPS.
-4. Asegúrate de que tu dominio apunta a la IP del VPS.
-5. Ejecuta el script de configuración y ¡disfruta de tu nueva web segura!
+1. **Sincronización**: Realiza un `git pull` en tu VPS para recibir estos cambios.
+2. **Imágenes Reales**: Sustituye los placeholders en `public/assets/` con tus fotos definitivas.
+3. **Despliegue**: Asegúrate de que el dominio apunta a la IP y ejecuta el script de configuración.

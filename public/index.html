@@ -19,7 +19,7 @@
             <nav class="nav-links">
                 <a href="#inicio">Inicio</a>
                 <a href="#servicios">Servicios</a>
-                <a href="#galeria">Galería</a>
+                <a href="#precios">Precios</a>
                 <a href="#contacto">Contacto</a>
             </nav>
         </div>
@@ -27,14 +27,23 @@
 
     <main>
         <!-- Hero Section -->
-        <section id="inicio" class="hero"
-            style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('assets/hero.png');">
-            <div class="hero-content">
-                <h1>Tu Refugio Privado</h1>
-                <p>Descubre la combinación perfecta de lujo, confort y naturaleza en un espacio diseñado para tu
-                    descanso.</p>
-                <a href="#contacto" class="btn btn-gold">Reservar Ahora</a>
+        <section id="inicio" class="hero" style="background-image: url('assets/hero.png');">
+            <div class="hero-overlay"></div>
+            <div class="hero-content container">
+                <h1 id="hero-title">Casa Rural Los Manicos</h1>
+                <p id="hero-tagline">Tu Refugio en Moratalla</p>
+                <div style="margin-top: 30px;">
+                    <a href="#servicios" class="btn">Explorar</a>
+                    <a href="#contacto" class="btn btn-outline">Reservar</a>
+                </div>
             </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="container" style="text-align: center; padding: 100px 0;">
+            <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto; line-height: 1.8;" id="site-description">
+                Descubre la combinación perfecta de lujo, confort y naturaleza en un espacio diseñado para tu descanso.
+            </p>
         </section>
 
         <!-- Services / Carousels -->
@@ -45,19 +54,19 @@
             </div>
         </section>
 
-        <!-- Gallery -->
-        <section id="galeria" style="background: var(--accent);">
+        <!-- Pricing Section -->
+        <section id="precios" style="background: var(--accent); padding: 100px 0;">
             <div class="container">
-                <h2 style="text-align: center; margin-bottom: 50px;">Galería de Detalles</h2>
-                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-                    <div class="card-img"
-                        style="background-image: url('assets/room_1.png'); height: 300px; border-radius: 10px;"></div>
-                    <div class="card-img"
-                        style="background-image: url('assets/interior_1.png'); height: 300px; border-radius: 10px;">
-                    </div>
-                    <div class="card-img"
-                        style="background-image: url('assets/exterior_1.png'); height: 300px; border-radius: 10px;">
-                    </div>
+                <h2 style="text-align: center; margin-bottom: 20px;" id="pricing-title">Tarifas y Disponibilidad</h2>
+                <p style="text-align: center; margin-bottom: 50px; color: var(--text-muted);" id="pricing-desc">Precios
+                    por noche diseñados para adaptarse a tu grupo. Estancia mínima: 2 noches.</p>
+
+                <div id="pricing-grid" class="pricing-grid">
+                    <!-- Data will be injected here by config.js logic -->
+                </div>
+
+                <div class="pricing-footer">
+                    <p>* Los precios pueden variar en puentes y festivos especiales. Consúltanos directamente.</p>
                 </div>
             </div>
         </section>
@@ -92,7 +101,22 @@
             }
         });
 
-        // Carousel Logic
+        // Initialize dynamic content
+        function initApp() {
+            // Render basic content
+            document.getElementById('hero-title').innerText = CONFIG.title;
+            document.getElementById('hero-tagline').innerText = CONFIG.tagline;
+            document.getElementById('site-description').innerText = CONFIG.description;
+            document.getElementById('pricing-title').innerText = CONFIG.pricing.title;
+            document.getElementById('pricing-desc').innerText = CONFIG.pricing.description;
+
+            // Render Carousels
+            initCarousels();
+
+            // Render Pricing
+            initPricing();
+        }
+
         function initCarousels() {
             const grid = document.getElementById('carousel-grid');
             if (!grid) return;
@@ -130,6 +154,31 @@
             });
         }
 
+        function initPricing() {
+            const grid = document.getElementById('pricing-grid');
+            if (!grid) return;
+
+            CONFIG.pricing.seasons.forEach(season => {
+                const card = document.createElement('div');
+                card.className = 'pricing-card';
+
+                const tableRows = season.ranges.map(range => `
+                    <tr>
+                        <td>${range.persons}</td>
+                        <td>${range.price}</td>
+                    </tr>
+                `).join('');
+
+                card.innerHTML = `
+                    <h3>${season.name}</h3>
+                    <table class="pricing-table">
+                        ${tableRows}
+                    </table>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
         function moveSlide(id, direction) {
             const container = document.getElementById(id);
             const slides = container.querySelectorAll('.carousel-slide');
@@ -157,7 +206,7 @@
             dots[index].classList.add('active');
         }
 
-        document.addEventListener('DOMContentLoaded', initCarousels);
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 

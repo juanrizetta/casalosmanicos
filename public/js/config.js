@@ -45,9 +45,32 @@ const CONFIG = {
                 "assets/room_3.png"
             ]
         }
-    ]
-};
+    ],
 
+    // Pricing Information
+    pricing: {
+        title: "Tarifas y Disponibilidad",
+        description: "Precios por noche diseñados para adaptarse a tu grupo. Estancia mínima: 2 noches.",
+        seasons: [
+            {
+                name: "Temporada Baja",
+                ranges: [
+                    { persons: "1 - 4 personas", price: "120€" },
+                    { persons: "5 - 6 personas", price: "150€" },
+                    { persons: "Persona extra (hasta 8)", price: "15€" }
+                ]
+            },
+            {
+                name: "Temporada Alta",
+                ranges: [
+                    { persons: "1 - 4 personas", price: "150€" },
+                    { persons: "5 - 6 personas", price: "180€" },
+                    { persons: "Persona extra (hasta 8)", price: "20€" }
+                ]
+            }
+        ]
+    }
+};
 // This function will automatically apply the changes to the page
 document.addEventListener('DOMContentLoaded', () => {
     // Update basic text
