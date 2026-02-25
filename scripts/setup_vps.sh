@@ -2,7 +2,7 @@
 
 # VPS Initialization Script for "Casa Los Manicos"
 # Targeted for Ubuntu 20.04/22.04+
-# This script is idempotent and handles user creation + git sync.
+# This script is idempotent and handles user creation, git sync, and SSL.
 
 set -e
 
@@ -12,139 +12,102 @@ EMAIL="casalosmanicos@gmail.com"
 NEW_USER="juanri"
 REPO_URL="github.com/juanrizetta/casalosmanicos.git"
 
-# Ensure GITHUB_TOKEN is set as an environment variable
+# Ensure GITHUB_TOKEN is set
 if [ -z "$GITHUB_TOKEN" ]; then
-    echo -e "\033[0;31mERROR: GITHUB_TOKEN is not set. Please export it before running:\033[0m"
-    echo -e "export GITHUB_TOKEN='your_token'"
+    echo -e "\033[0;31mERROR: GITHUB_TOKEN is not set. Please export it first.\033[0m"
     exit 1
 fi
 
-# Colors for output
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 echo -e "${GREEN}Starting Robust VPS Initialization...${NC}"
 
-# Function to check if a package is installed
-is_installed() {
-    dpkg -s "$1" >/dev/null 2>&1
-}
-
-# 1. Create User 'juanri'
-echo -e "${GREEN}1. Configuring user $NEW_USER...${NC}"
+# 1. Create User
 if ! id "$NEW_USER" &>/dev/null; then
     sudo adduser --disabled-password --gecos "" "$NEW_USER"
     sudo usermod -aG sudo "$NEW_USER"
-    echo -e "${GREEN}User $NEW_USER created and added to sudoers.${NC}"
-else
-    echo -e "${NC}User $NEW_USER already exists.${NC}"
 fi
-
-# Fix permissions for Nginx traversal
 sudo chmod o+x /home/$NEW_USER
 
-# 2. Update system and install dependencies
-echo -e "${GREEN}2. Updating system and installing dependencies...${NC}"
-export DEBIAN_FRONTEND=noninteractive
+# 2. Dependencies
 sudo apt-get update
-sudo apt-get install -y git nginx ufw certbot python3-certbot-nginx dnsutils
+sudo apt-get install -y git nginx ufw certbot python3-certbot-nginx dnsutils curl
 
-# 3. Configure Firewall (UFW)
-echo -e "${GREEN}3. Configuring UFW firewall...${NC}"
+# 3. Firewall
 sudo ufw allow 'OpenSSH'
 sudo ufw allow 'Nginx Full'
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
-if [[ $(sudo ufw status | grep "Status: active") == "" ]]; then
-    echo "y" | sudo ufw enable
-fi
+if [[ $(sudo ufw status | grep "Status: active") == "" ]]; then echo "y" | sudo ufw enable; fi
 
-# 4. Clone / Sync Repository
+# 4. Git Sync
 PROJECT_DIR="/home/$NEW_USER/app/casalosmanicos"
-echo -e "${GREEN}4. Synchronizing repository...${NC}"
 sudo mkdir -p "/home/$NEW_USER/app"
 sudo chown -R $NEW_USER:$NEW_USER "/home/$NEW_USER/app"
 
 if [ ! -d "$PROJECT_DIR" ]; then
-    echo -e "${GREEN}Cloning repository...${NC}"
     sudo -u "$NEW_USER" git clone "https://$GITHUB_TOKEN@$REPO_URL" "$PROJECT_DIR"
 else
-    echo -e "${NC}Repository already exists. Pulling latest changes...${NC}"
     cd "$PROJECT_DIR"
     sudo -u "$NEW_USER" git pull
 fi
 
-# 5. Nginx Configuration & Symbolic Link
+# 5. Nginx Configuration (Idempotent for SSL)
 WEB_ROOT="/var/www/$DOMAIN"
-echo -e "${GREEN}5. Configuring Nginx...${NC}"
+CONF_FILE="/etc/nginx/sites-available/$DOMAIN"
 
-if [ -e "$WEB_ROOT" ] || [ -L "$WEB_ROOT" ]; then
-    sudo rm -rf "$WEB_ROOT"
-fi
+# Remove existing root if not a link
+if [ -e "$WEB_ROOT" ] && [ ! -L "$WEB_ROOT" ]; then sudo rm -rf "$WEB_ROOT"; fi
 sudo ln -sfn "$PROJECT_DIR/public" "$WEB_ROOT"
 
-sudo tee /etc/nginx/sites-available/$DOMAIN <<EOF
+# Only write base config if it doesn't have SSL managed by certbot yet
+if ! grep -q "managed by Certbot" "$CONF_FILE" 2>/dev/null; then
+    echo -e "${GREEN}Writing base Nginx configuration...${NC}"
+    sudo tee "$CONF_FILE" <<EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
-
     server_name $DOMAIN www.$DOMAIN;
-
     root $WEB_ROOT;
     index index.html;
-
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
-
-    # Cache Control for static assets
+    location / { try_files \$uri \$uri/ =404; }
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
         expires 30d;
         add_header Cache-Control "public, no-transform";
     }
 }
 EOF
-
-# 6. Enable the site
-if [ ! -f "/etc/nginx/sites-enabled/$DOMAIN" ]; then
-    sudo ln -sf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
+else
+    echo -e "${NC}Nginx config already contains SSL (managed by Certbot). Skipping overwrite.${NC}"
 fi
-sudo rm -f /etc/nginx/sites-enabled/default || true
 
+# 6. Enable site
+sudo ln -sf "$CONF_FILE" /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default || true
 sudo nginx -t && sudo systemctl reload nginx
 
-# 7. SSL Configuration (Detailed Diagnostics)
-echo -e "${GREEN}7. Ensuring SSL Certificate...${NC}"
-
-# Pre-flight DNS check
+# 7. SSL - Certbot
+echo -e "${GREEN}Verifying SSL status...${NC}"
 PUBLIC_IP=$(curl -s https://ifconfig.me)
 DNS_IP=$(dig +short "$DOMAIN" | tail -n1)
 
-echo -e "Server IP: $PUBLIC_IP"
-echo -e "Domain $DOMAIN points to: $DNS_IP"
+echo -e "Server IP: $PUBLIC_IP | Domain $DOMAIN points to: $DNS_IP"
 
-if [ -z "$DNS_IP" ]; then
-    echo -e "${RED}WARNING: Domain $DOMAIN has no A record. SSL acquisition will fail.${NC}"
-elif [ "$DNS_IP" != "$PUBLIC_IP" ]; then
-    echo -e "${YELLOW}WARNING: Domain $DOMAIN points to $DNS_IP, but this server is $PUBLIC_IP. SSL might fail.${NC}"
-fi
-
-if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-    echo -e "${GREEN}Attemping SSL acquisition via Certbot...${NC}"
-    if sudo certbot --nginx -d "$DOMAIN" -d "www.$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redirect; then
-        echo -e "${GREEN}SSL Certificate obtained successfully!${NC}"
-    else
-        echo -e "${RED}Certbot FAILED.${NC}"
-        echo -e "${YELLOW}Common reasons for failure:${NC}"
-        echo -e "1. DNS A record has not propagated yet (can take 1-24h)."
-        echo -e "2. Port 80 or 443 blocked by VPS provider's external firewall (e.g. AWS Security Groups, Google Cloud Firewall)."
-        echo -e "3. Domain ownership could not be verified by Let's Encrypt."
-    fi
+# Force Certbot to ensure the config is correct even if the cert already exists
+# We use 'install' to make sure the Nginx config has the SSL blocks
+if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+    echo -e "${GREEN}Certificate found. Ensuring Nginx is configured for SSL...${NC}"
+    sudo certbot install --nginx --cert-name "$DOMAIN" --non-interactive --redirect
 else
-    echo -e "${NC}SSL already active.${NC}"
+    echo -e "${YELLOW}No certificate found. Requesting new one...${NC}"
+    sudo certbot --nginx -d "$DOMAIN" -d "www.$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redirect || echo -e "${RED}Certbot failed. Check DNS propagation.${NC}"
 fi
 
-echo -e "${GREEN}Initialization Finalized!${NC}"
-echo -e "Visit: https://$DOMAIN"
+sudo systemctl reload nginx
+
+echo -e "${GREEN}Done! Try visiting https://$DOMAIN${NC}"
+echo -e "Diagnostics: sudo netstat -tulpn | grep nginx"
