@@ -7,8 +7,8 @@
 set -e
 
 # Configuration
-DOMAIN="casalosmanicos.com"
-EMAIL="hola@casalosmanicos.com"
+DOMAIN="casalosmanicos.es"
+EMAIL="casalosmanicos@gmail.com"
 NEW_USER="juanri"
 REPO_URL="github.com/juanrizetta/casalosmanicos.git"
 # Ensure GITHUB_TOKEN is set as an environment variable
