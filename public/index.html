@@ -103,34 +103,58 @@
 
         // Initialize dynamic content
         function initApp() {
-            // Update Title and Logo
-            document.title = `${CONFIG.title} | Alojamiento Turístico Único`;
-            document.querySelector('.logo').innerText = CONFIG.title.toUpperCase();
+            try {
+                console.log("Iniciando Casa Rural Los Manicos App...");
 
-            // Render Hero content
-            document.getElementById('hero-title').innerText = CONFIG.title;
-            document.getElementById('hero-tagline').innerText = CONFIG.tagline;
-            document.getElementById('site-description').innerText = CONFIG.description;
+                if (typeof CONFIG === 'undefined') {
+                    throw new Error("CONFIG no está definido. Comprueba que js/config.js se carga correctamente.");
+                }
 
-            // Render Pricing labels
-            document.getElementById('pricing-title').innerText = CONFIG.pricing.title;
-            document.getElementById('pricing-desc').innerText = CONFIG.pricing.description;
+                // Update Title and Logo
+                document.title = `${CONFIG.title} | Alojamiento Turístico Único`;
+                const logo = document.querySelector('.logo');
+                if (logo) logo.innerText = CONFIG.title.toUpperCase();
 
-            // Update Contact details
-            const contactDiv = document.querySelector('#contacto div');
-            if (contactDiv) {
-                contactDiv.innerHTML = `
-                    <p>📍 ${CONFIG.contact.address}</p>
-                    <p>📞 ${CONFIG.contact.phone}</p>
-                    <p>✉️ ${CONFIG.contact.email}</p>
-                    <br>
-                    <a href="mailto:${CONFIG.contact.email}" class="btn">Enviar un Email</a>
-                `;
+                // Render Hero content
+                const heroTitle = document.getElementById('hero-title');
+                const heroTagline = document.getElementById('hero-tagline');
+                const siteDesc = document.getElementById('site-description');
+
+                if (heroTitle) heroTitle.innerText = CONFIG.title;
+                if (heroTagline) heroTagline.innerText = CONFIG.tagline;
+                if (siteDesc) siteDesc.innerText = CONFIG.description;
+
+                // Render Pricing labels
+                const priceTitle = document.getElementById('pricing-title');
+                const priceDesc = document.getElementById('pricing-desc');
+
+                if (CONFIG.pricing) {
+                    if (priceTitle) priceTitle.innerText = CONFIG.pricing.title;
+                    if (priceDesc) priceDesc.innerText = CONFIG.pricing.description;
+                }
+
+                // Update Contact details
+                const contactDiv = document.querySelector('#contacto div');
+                if (contactDiv && CONFIG.contact) {
+                    contactDiv.innerHTML = `
+                        <p>📍 ${CONFIG.contact.address}</p>
+                        <p>📞 ${CONFIG.contact.phone}</p>
+                        <p>✉️ ${CONFIG.contact.email}</p>
+                        <br>
+                        <a href="mailto:${CONFIG.contact.email}" class="btn">Enviar un Email</a>
+                    `;
+                }
+
+                // Sync Carousels and Pricing
+                console.log("Cargando carruseles y precios...");
+                initCarousels();
+                initPricing();
+
+            } catch (e) {
+                console.error("Error inicializando la web:", e);
+                // Fallback visual si falla algo crítico
+                document.body.prepend(document.createComment("Error: " + e.message));
             }
-
-            // Sync Carousels and Pricing
-            initCarousels();
-            initPricing();
         }
 
         function initCarousels() {

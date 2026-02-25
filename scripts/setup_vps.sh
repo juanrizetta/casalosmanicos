@@ -31,7 +31,9 @@ if ! id "$NEW_USER" &>/dev/null; then
     sudo adduser --disabled-password --gecos "" "$NEW_USER"
     sudo usermod -aG sudo "$NEW_USER"
 fi
+# Fix permissions for Nginx traversal
 sudo chmod o+x /home/$NEW_USER
+sudo chmod -R o+rx /home/$NEW_USER/app
 
 # 2. Dependencies
 sudo apt-get update
