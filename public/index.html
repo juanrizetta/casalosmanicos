@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casa Los Manicos | Alojamiento Turístico Único</title>
+    <meta name="description"
+        content="Disfruta de una estancia inolvidable en Casa Los Manicos. Diseño moderno, todas las comodidades y un entorno espectacular.">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/config.js" defer></script>
+</head>
+
+<body>
+
+    <header id="main-header">
+        <div class="container nav-content">
+            <div class="logo">CASA LOS MANICOS</div>
+            <nav class="nav-links">
+                <a href="#inicio">Inicio</a>
+                <a href="#servicios">Servicios</a>
+                <a href="#galeria">Galería</a>
+                <a href="#contacto">Contacto</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="inicio" class="hero"
+            style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('assets/hero.png');">
+            <div class="hero-content">
+                <h1>Tu Refugio Privado</h1>
+                <p>Descubre la combinación perfecta de lujo, confort y naturaleza en un espacio diseñado para tu
+                    descanso.</p>
+                <a href="#contacto" class="btn btn-gold">Reservar Ahora</a>
+            </div>
+        </section>
+
+        <!-- Services/Features -->
+        <section id="servicios" class="container">
+            <h2 style="text-align: center; margin-bottom: 50px;">Por qué elegirnos</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-img" style="background-image: url('assets/interior_1.png');"></div>
+                    <div class="card-body">
+                        <h3>Diseño Moderno</h3>
+                        <p>Espacios abiertos, luz natural y mobiliario de alta calidad para una experiencia premium.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img" style="background-image: url('assets/exterior_1.png');"></div>
+                    <div class="card-body">
+                        <h3>Ubicación Prime</h3>
+                        <p>Situada en un entorno tranquilo pero cerca de todos los puntos de interés locales.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-img" style="background-image: url('assets/room_1.png');"></div>
+                    <div class="card-body">
+                        <h3>Full Equipada</h3>
+                        <p>Cocina completa, WiFi de alta velocidad, aire acondicionado y todo lo necesario.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery -->
+        <section id="galeria" style="background: var(--accent);">
+            <div class="container">
+                <h2 style="text-align: center; margin-bottom: 50px;">Nuestra Galería</h2>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                    <div class="card-img"
+                        style="background-image: url('assets/room_1.png'); height: 300px; border-radius: 10px;"></div>
+                    <div class="card-img"
+                        style="background-image: url('assets/interior_1.png'); height: 300px; border-radius: 10px;">
+                    </div>
+                    <div class="card-img"
+                        style="background-image: url('assets/exterior_1.png'); height: 300px; border-radius: 10px;">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact -->
+        <section id="contacto" class="container" style="text-align: center;">
+            <h2>Contacto y Reservas</h2>
+            <p style="margin-bottom: 40px; color: var(--text-muted);">¿Tienes alguna duda? Estamos aquí para ayudarte a
+                planear tu estancia.</p>
+            <div style="max-width: 600px; margin: 0 auto;">
+                <p>📍 Calle Principal 123, 30xxx Murcia</p>
+                <p>📞 +34 600 000 000</p>
+                <p>✉️ hola@casalosmanicos.com</p>
+                <br>
+                <a href="mailto:hola@casalosmanicos.com" class="btn">Enviar un Email</a>
+            </div>
+        </section>
+    </main>
+
+    <footer style="padding: 40px 0; text-align: center; border-top: 1px solid var(--accent); color: var(--text-muted);">
+        <p>&copy; 2026 Casa Los Manicos. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+
+</html>
