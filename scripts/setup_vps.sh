@@ -22,9 +22,10 @@ fi
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}Starting Advanced VPS Initialization...${NC}"
+echo -e "${GREEN}Starting Robust VPS Initialization...${NC}"
 
 # Function to check if a package is installed
 is_installed() {
@@ -41,21 +42,21 @@ else
     echo -e "${NC}User $NEW_USER already exists.${NC}"
 fi
 
-# IMPORTANT: Fix permissions for Nginx traversal
-# Nginx (www-data) needs +x on parent directories of the web root
-echo -e "${GREEN}Fixing home directory permissions for Nginx access...${NC}"
+# Fix permissions for Nginx traversal
 sudo chmod o+x /home/$NEW_USER
 
 # 2. Update system and install dependencies
-echo -e "${GREEN}2. Updating system and installing git/nginx...${NC}"
+echo -e "${GREEN}2. Updating system and installing dependencies...${NC}"
 export DEBIAN_FRONTEND=noninteractive
 sudo apt-get update
-sudo apt-get install -y git nginx ufw certbot python3-certbot-nginx
+sudo apt-get install -y git nginx ufw certbot python3-certbot-nginx dnsutils
 
 # 3. Configure Firewall (UFW)
 echo -e "${GREEN}3. Configuring UFW firewall...${NC}"
-sudo ufw allow 'Nginx Full'
 sudo ufw allow 'OpenSSH'
+sudo ufw allow 'Nginx Full'
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
 if [[ $(sudo ufw status | grep "Status: active") == "" ]]; then
     echo "y" | sudo ufw enable
 fi
@@ -77,20 +78,13 @@ fi
 
 # 5. Nginx Configuration & Symbolic Link
 WEB_ROOT="/var/www/$DOMAIN"
-echo -e "${GREEN}5. Configuring Nginx with symbolic links...${NC}"
+echo -e "${GREEN}5. Configuring Nginx...${NC}"
 
-# Ensure parent directory for web root exists
-sudo mkdir -p /var/www
-
-# Remove existing root if it exists and is NOT a link or is the wrong link
 if [ -e "$WEB_ROOT" ] || [ -L "$WEB_ROOT" ]; then
     sudo rm -rf "$WEB_ROOT"
 fi
-
-# Create symbolic link from repo's public folder to Nginx root
 sudo ln -sfn "$PROJECT_DIR/public" "$WEB_ROOT"
 
-# Create Nginx config with default_server to handle localhost/IP calls
 sudo tee /etc/nginx/sites-available/$DOMAIN <<EOF
 server {
     listen 80 default_server;
@@ -117,26 +111,40 @@ EOF
 if [ ! -f "/etc/nginx/sites-enabled/$DOMAIN" ]; then
     sudo ln -sf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
 fi
-
-# Disable default nginx site if it exists
-if [ -f "/etc/nginx/sites-enabled/default" ]; then
-    sudo rm -f /etc/nginx/sites-enabled/default
-fi
+sudo rm -f /etc/nginx/sites-enabled/default || true
 
 sudo nginx -t && sudo systemctl reload nginx
 
-# 7. SSL Configuration
+# 7. SSL Configuration (Detailed Diagnostics)
 echo -e "${GREEN}7. Ensuring SSL Certificate...${NC}"
+
+# Pre-flight DNS check
+PUBLIC_IP=$(curl -s https://ifconfig.me)
+DNS_IP=$(dig +short "$DOMAIN" | tail -n1)
+
+echo -e "Server IP: $PUBLIC_IP"
+echo -e "Domain $DOMAIN points to: $DNS_IP"
+
+if [ -z "$DNS_IP" ]; then
+    echo -e "${RED}WARNING: Domain $DOMAIN has no A record. SSL acquisition will fail.${NC}"
+elif [ "$DNS_IP" != "$PUBLIC_IP" ]; then
+    echo -e "${YELLOW}WARNING: Domain $DOMAIN points to $DNS_IP, but this server is $PUBLIC_IP. SSL might fail.${NC}"
+fi
+
 if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-    echo -e "${RED}Attemping to obtain SSL for $DOMAIN (requires DNS pointing to this IP)...${NC}"
-    # Use -n for non-interactive and allow fallback if it fails
-    sudo certbot --nginx -d "$DOMAIN" -d "www.$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redirect || echo -e "${RED}Certbot failed. Make sure DNS is correct.${NC}"
+    echo -e "${GREEN}Attemping SSL acquisition via Certbot...${NC}"
+    if sudo certbot --nginx -d "$DOMAIN" -d "www.$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redirect; then
+        echo -e "${GREEN}SSL Certificate obtained successfully!${NC}"
+    else
+        echo -e "${RED}Certbot FAILED.${NC}"
+        echo -e "${YELLOW}Common reasons for failure:${NC}"
+        echo -e "1. DNS A record has not propagated yet (can take 1-24h)."
+        echo -e "2. Port 80 or 443 blocked by VPS provider's external firewall (e.g. AWS Security Groups, Google Cloud Firewall)."
+        echo -e "3. Domain ownership could not be verified by Let's Encrypt."
+    fi
 else
     echo -e "${NC}SSL already active.${NC}"
 fi
 
-echo -e "${GREEN}Initialization Finalized Successfully!${NC}"
-echo -e "User: $NEW_USER (sudoer)"
-echo -e "Project path: $PROJECT_DIR"
-echo -e "Web root (link): $WEB_ROOT -> $(readlink -f $WEB_ROOT)"
-echo -e "Web accessible at: https://$DOMAIN (and http://localhost)"
+echo -e "${GREEN}Initialization Finalized!${NC}"
+echo -e "Visit: https://$DOMAIN"
