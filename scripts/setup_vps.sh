@@ -11,9 +11,11 @@ DOMAIN="casalosmanicos.es"
 EMAIL="casalosmanicos@gmail.com"
 NEW_USER="juanri"
 REPO_URL="github.com/juanrizetta/casalosmanicos.git"
+
 # Ensure GITHUB_TOKEN is set as an environment variable
 if [ -z "$GITHUB_TOKEN" ]; then
-    echo "ERROR: GITHUB_TOKEN is not set. Please export it before running: export GITHUB_TOKEN='your_token'"
+    echo -e "\033[0;31mERROR: GITHUB_TOKEN is not set. Please export it before running:\033[0m"
+    echo -e "export GITHUB_TOKEN='your_token'"
     exit 1
 fi
 
@@ -39,6 +41,11 @@ else
     echo -e "${NC}User $NEW_USER already exists.${NC}"
 fi
 
+# IMPORTANT: Fix permissions for Nginx traversal
+# Nginx (www-data) needs +x on parent directories of the web root
+echo -e "${GREEN}Fixing home directory permissions for Nginx access...${NC}"
+sudo chmod o+x /home/$NEW_USER
+
 # 2. Update system and install dependencies
 echo -e "${GREEN}2. Updating system and installing git/nginx...${NC}"
 export DEBIAN_FRONTEND=noninteractive
@@ -61,7 +68,6 @@ sudo chown -R $NEW_USER:$NEW_USER "/home/$NEW_USER/app"
 
 if [ ! -d "$PROJECT_DIR" ]; then
     echo -e "${GREEN}Cloning repository...${NC}"
-    # Using HTTPS with token for authentication
     sudo -u "$NEW_USER" git clone "https://$GITHUB_TOKEN@$REPO_URL" "$PROJECT_DIR"
 else
     echo -e "${NC}Repository already exists. Pulling latest changes...${NC}"
@@ -73,18 +79,22 @@ fi
 WEB_ROOT="/var/www/$DOMAIN"
 echo -e "${GREEN}5. Configuring Nginx with symbolic links...${NC}"
 
+# Ensure parent directory for web root exists
+sudo mkdir -p /var/www
+
 # Remove existing root if it exists and is NOT a link or is the wrong link
-if [ -d "$WEB_ROOT" ] && [ ! -L "$WEB_ROOT" ]; then
+if [ -e "$WEB_ROOT" ] || [ -L "$WEB_ROOT" ]; then
     sudo rm -rf "$WEB_ROOT"
 fi
 
 # Create symbolic link from repo's public folder to Nginx root
 sudo ln -sfn "$PROJECT_DIR/public" "$WEB_ROOT"
 
+# Create Nginx config with default_server to handle localhost/IP calls
 sudo tee /etc/nginx/sites-available/$DOMAIN <<EOF
 server {
-    listen 80;
-    listen [::]:80;
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
     server_name $DOMAIN www.$DOMAIN;
 
@@ -106,6 +116,10 @@ EOF
 # 6. Enable the site
 if [ ! -f "/etc/nginx/sites-enabled/$DOMAIN" ]; then
     sudo ln -sf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
+fi
+
+# Disable default nginx site if it exists
+if [ -f "/etc/nginx/sites-enabled/default" ]; then
     sudo rm -f /etc/nginx/sites-enabled/default
 fi
 
@@ -115,6 +129,7 @@ sudo nginx -t && sudo systemctl reload nginx
 echo -e "${GREEN}7. Ensuring SSL Certificate...${NC}"
 if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
     echo -e "${RED}Attemping to obtain SSL for $DOMAIN (requires DNS pointing to this IP)...${NC}"
+    # Use -n for non-interactive and allow fallback if it fails
     sudo certbot --nginx -d "$DOMAIN" -d "www.$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redirect || echo -e "${RED}Certbot failed. Make sure DNS is correct.${NC}"
 else
     echo -e "${NC}SSL already active.${NC}"
@@ -123,4 +138,5 @@ fi
 echo -e "${GREEN}Initialization Finalized Successfully!${NC}"
 echo -e "User: $NEW_USER (sudoer)"
 echo -e "Project path: $PROJECT_DIR"
-echo -e "Web accessible at: https://$DOMAIN"
+echo -e "Web root (link): $WEB_ROOT -> $(readlink -f $WEB_ROOT)"
+echo -e "Web accessible at: https://$DOMAIN (and http://localhost)"
