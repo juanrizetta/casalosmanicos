@@ -97,11 +97,16 @@ DNS_IP=$(dig +short "$DOMAIN" | tail -n1)
 
 echo -e "Server IP: $PUBLIC_IP | Domain $DOMAIN points to: $DNS_IP"
 
-# Force Certbot to ensure the config is correct even if the cert already exists
-# We use 'install' to make sure the Nginx config has the SSL blocks
-if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-    echo -e "${GREEN}Certificate found. Ensuring Nginx is configured for SSL...${NC}"
-    sudo certbot install --nginx --cert-name "$DOMAIN" --non-interactive --redirect
+CERT_PATH="/etc/letsencrypt/live/$DOMAIN/cert.pem"
+if [ -f "$CERT_PATH" ]; then
+    echo -e "${NC}Checking certificate expiration for $DOMAIN...${NC}"
+    # Check if the certificate expires in the next 30 days (2592000 seconds)
+    if sudo openssl x509 -checkend 2592000 -noout -in "$CERT_PATH"; then
+        echo -e "${GREEN}Certificate is still valid for more than 30 days. Skipping renewal/re-installation.${NC}"
+    else
+        echo -e "${YELLOW}Certificate expires in less than 30 days. Updating Nginx configuration...${NC}"
+        sudo certbot install --nginx --cert-name "$DOMAIN" --non-interactive --redirect
+    fi
 else
     echo -e "${YELLOW}No certificate found. Requesting new one...${NC}"
     sudo certbot --nginx -d "$DOMAIN" -d "www.$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --redirect || echo -e "${RED}Certbot failed. Check DNS propagation.${NC}"

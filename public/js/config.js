@@ -8,9 +8,9 @@ const CONFIG = {
 
     // Contact Information
     contact: {
-        address: "Calle Principal 123, 30xxx Murcia",
+        address: "Calle Luengo Bajo 20, Moratalla, Murcia",
         phone: "+34 600 000 000",
-        email: "hola@casalosmanicos.com"
+        email: "casalosmanicos@gmail.es"
     },
 
     // Services / Features
