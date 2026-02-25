@@ -2,8 +2,8 @@
 // Edit the values below to change the website content easily.
 
 const CONFIG = {
-    title: "Casa Los Manicos",
-    tagline: "Tu Refugio Privado",
+    title: "Casa Rural Los Manicos",
+    tagline: "Tu Refugio en Moratalla",
     description: "Descubre la combinación perfecta de lujo, confort y naturaleza en un espacio diseñado para tu descanso.",
 
     // Contact Information
@@ -13,22 +13,37 @@ const CONFIG = {
         email: "casalosmanicos@gmail.es"
     },
 
-    // Services / Features
-    features: [
+    // Services / Features (Carousels)
+    sections: [
         {
-            title: "Diseño Moderno",
-            text: "Espacios abiertos, luz natural y mobiliario de alta calidad para una experiencia premium.",
-            image: "assets/interior_1.png"
+            id: "servicios-interior",
+            title: "Interiores de Ensueño",
+            text: "Espacios abiertos, luz natural y mobiliario de alta calidad para una estancia de lujo.",
+            images: [
+                "assets/interior_1.png",
+                "assets/interior_2.png",
+                "assets/interior_3.png"
+            ]
         },
         {
-            title: "Ubicación Prime",
-            text: "Situada en un entorno tranquilo pero cerca de todos los puntos de interés locales.",
-            image: "assets/exterior_1.png"
+            id: "servicios-exterior",
+            title: "Entorno Privado",
+            text: "Un entorno idilico, donde disfrutar de la naturaleza y la tranquilidad.",
+            images: [
+                "assets/exterior_1.png",
+                "assets/exterior_2.png",
+                "assets/exterior_3.png"
+            ]
         },
         {
-            title: "Full Equipada",
-            text: "Cocina completa, WiFi de alta velocidad, aire acondicionado y todo lo necesario.",
-            image: "assets/room_1.png"
+            id: "servicios-habitaciones",
+            title: "Descanso Absoluto",
+            text: "Habitaciones diseñadas para el confort máximo con ropa de cama premium y silencio total.",
+            images: [
+                "assets/room_1.png",
+                "assets/room_2.png",
+                "assets/room_3.png"
+            ]
         }
     ]
 };

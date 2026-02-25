@@ -15,7 +15,7 @@
 
     <header id="main-header">
         <div class="container nav-content">
-            <div class="logo">CASA LOS MANICOS</div>
+            <div class="logo">CASA RURAL LOS MANICOS</div>
             <nav class="nav-links">
                 <a href="#inicio">Inicio</a>
                 <a href="#servicios">Servicios</a>
@@ -37,38 +37,18 @@
             </div>
         </section>
 
-        <!-- Services/Features -->
+        <!-- Services / Carousels -->
         <section id="servicios" class="container">
-            <h2 style="text-align: center; margin-bottom: 50px;">Por qué elegirnos</h2>
-            <div class="grid">
-                <div class="card">
-                    <div class="card-img" style="background-image: url('assets/interior_1.png');"></div>
-                    <div class="card-body">
-                        <h3>Diseño Moderno</h3>
-                        <p>Espacios abiertos, luz natural y mobiliario de alta calidad para una experiencia premium.</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-img" style="background-image: url('assets/exterior_1.png');"></div>
-                    <div class="card-body">
-                        <h3>Ubicación Prime</h3>
-                        <p>Situada en un entorno tranquilo pero cerca de todos los puntos de interés locales.</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-img" style="background-image: url('assets/room_1.png');"></div>
-                    <div class="card-body">
-                        <h3>Full Equipada</h3>
-                        <p>Cocina completa, WiFi de alta velocidad, aire acondicionado y todo lo necesario.</p>
-                    </div>
-                </div>
+            <h2 style="text-align: center; margin-bottom: 50px;">Nuestra Propuesta</h2>
+            <div id="carousel-grid" class="grid">
+                <!-- Data will be injected here by config.js logic -->
             </div>
         </section>
 
         <!-- Gallery -->
         <section id="galeria" style="background: var(--accent);">
             <div class="container">
-                <h2 style="text-align: center; margin-bottom: 50px;">Nuestra Galería</h2>
+                <h2 style="text-align: center; margin-bottom: 50px;">Galería de Detalles</h2>
                 <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
                     <div class="card-img"
                         style="background-image: url('assets/room_1.png'); height: 300px; border-radius: 10px;"></div>
@@ -88,9 +68,9 @@
             <p style="margin-bottom: 40px; color: var(--text-muted);">¿Tienes alguna duda? Estamos aquí para ayudarte a
                 planear tu estancia.</p>
             <div style="max-width: 600px; margin: 0 auto;">
-                <p>📍 Calle Principal 123, 30xxx Murcia</p>
+                <p>📍 Calle Luengo Bajo 20, Moratalla, Murcia</p>
                 <p>📞 +34 600 000 000</p>
-                <p>✉️ hola@casalosmanicos.com</p>
+                <p>✉️ casalosmanicos@gmail.es</p>
                 <br>
                 <a href="mailto:casalosmanicos@gmail.com" class="btn">Enviar un Email</a>
             </div>
@@ -111,6 +91,73 @@
                 header.classList.remove('scrolled');
             }
         });
+
+        // Carousel Logic
+        function initCarousels() {
+            const grid = document.getElementById('carousel-grid');
+            if (!grid) return;
+
+            CONFIG.sections.forEach(section => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                let slidesHtml = section.images.map((img, idx) => `
+                    <div class="carousel-slide ${idx === 0 ? 'active' : ''}" style="background-image: url('${img}')"></div>
+                `).join('');
+
+                let dotsHtml = section.images.map((_, idx) => `
+                    <button class="carousel-dot ${idx === 0 ? 'active' : ''}" onclick="setSlide('${section.id}', ${idx})"></button>
+                `).join('');
+
+                card.innerHTML = `
+                    <div id="${section.id}" class="carousel-container">
+                        ${slidesHtml}
+                        <button class="carousel-btn carousel-prev" onclick="moveSlide('${section.id}', -1)">&#10094;</button>
+                        <button class="carousel-btn carousel-next" onclick="moveSlide('${section.id}', 1)">&#10095;</button>
+                        <div class="carousel-controls">
+                            ${dotsHtml}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3>${section.title}</h3>
+                        <p>${section.text}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+
+                // Auto slide
+                setInterval(() => moveSlide(section.id, 1), 5000 + Math.random() * 2000);
+            });
+        }
+
+        function moveSlide(id, direction) {
+            const container = document.getElementById(id);
+            const slides = container.querySelectorAll('.carousel-slide');
+            const dots = container.querySelectorAll('.carousel-dot');
+            let currentIdx = Array.from(slides).findIndex(s => s.classList.contains('active'));
+
+            slides[currentIdx].classList.remove('active');
+            dots[currentIdx].classList.remove('active');
+
+            currentIdx = (currentIdx + direction + slides.length) % slides.length;
+
+            slides[currentIdx].classList.add('active');
+            dots[currentIdx].classList.add('active');
+        }
+
+        function setSlide(id, index) {
+            const container = document.getElementById(id);
+            const slides = container.querySelectorAll('.carousel-slide');
+            const dots = container.querySelectorAll('.carousel-dot');
+
+            slides.forEach(s => s.classList.remove('active'));
+            dots.forEach(d => d.classList.remove('active'));
+
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', initCarousels);
     </script>
 </body>
 
