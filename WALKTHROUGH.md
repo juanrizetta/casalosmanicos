@@ -13,8 +13,9 @@ He completado el proyecto para la página web de tu alojamiento turístico. Aqu�
 ## 2. Inicialización del VPS
 Para configurar tu VPS, sigue estos pasos:
 1. Sube el archivo [setup_vps.sh](scripts/setup_vps.sh) a tu servidor.
-2. Ejecuta: `bash scripts/setup_vps.sh`.
-3. El script es **idempotente** (puedes ejecutarlo varias veces de forma segura). Instalará Nginx, Certbot para el SSL, configurará el firewall y preparará la carpeta de la web.
+2. Exporta tu token: `export GITHUB_TOKEN='tu_token'`.
+3. Ejecuta: `bash scripts/setup_vps.sh`.
+4. El script creará el usuario **juanri**, configurará Git para sincronizar el repo mediante el token y creará un **enlace simbólico** de la web. De esta forma, cada vez que hagas un `git pull` en el servidor, la web se actualizará automáticamente.
 
 ## 3. Personalización Fácil
 No necesitas editar el código HTML para cambiar lo básico. Abre [config.js](public/js/config.js) y verás una estructura como esta:

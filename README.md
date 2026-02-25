@@ -5,23 +5,21 @@ Este proyecto contiene una página web moderna y responsiva para un alojamiento 
 ## 🚀 Inicio Rápido
 
 ### 1. Preparación del VPS
-Sube el script de inicialización a tu servidor y ejecútalo:
+Antes de ejecutar el script, debes configurar tu token de acceso de GitHub (PAT) como variable de entorno:
+
 ```bash
+export GITHUB_TOKEN='tu_token_aqui'
 bash scripts/setup_vps.sh
 ```
-*Este script instalará Nginx, configurará el firewall (UFW) y preparará el directorio raíz en `/var/www/casalosmanicos.com`.*
+> [!NOTE]
+> El script creará automáticamente el usuario **juanri** con permisos de sudo y clonará el repositorio en su carpeta personal.
 
 ### 2. Despliegue de la Web
 Copia el contenido de la carpeta `public/` al directorio raíz de tu servidor (por defecto `/var/www/casalosmanicos.com`).
 
-### 3. Personalización Fácil
-No necesitas editar código HTML complejo. Toda la configuración visual y de texto se encuentra en:
-👉 `public/js/config.js`
-
-Edita ese archivo para cambiar:
-- Título y eslogan.
-- Datos de contacto (Teléfono, Email, Dirección).
-- Características y descripciones.
+## 📁 Estructura del Proyecto y Despliegue
+- **Directorio de la App**: `/home/juanri/app/casalosmanicos` (donde vive el código git).
+- **Enlace Simbólico**: `/var/www/casalosmanicos.com` apunta directamente a la carpeta `public/` del repo para actualizaciones instantáneas.
 
 ## 📁 Estructura del Proyecto
 - `public/`: Archivos de la página web (HTML, CSS, JS, Imágenes).
