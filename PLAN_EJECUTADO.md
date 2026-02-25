@@ -6,8 +6,11 @@ Este documento detalla el plan técnico ejecutado para la creación del proyecto
 
 ### 1. Infraestructura (VPS Ubuntu)
 - [x] **Servidor Web**: Instalación de Nginx (ligero y eficiente).
-- [x] **Seguridad**: Configuración de UFW permitiendo tráfico HTTP, HTTPS y SSH.
-- [x] **Aislamiento**: Configuración de bloque de sitio (VirtualHost) para el dominio especificado.
+- [x] **Seguridad y SSL**: 
+    - Configuración de UFW (Firewall).
+    - Integración con **Let's Encrypt** para SSL automático.
+    - Renovación automática de certificados.
+- [x] **Script Idempotente**: Permite re-ejecuciones seguras para mantenimiento.
 - [x] **Optimización**: Configuración de caché para recursos estáticos (30 días).
 
 ### 2. Desarrollo Web (Frontend)

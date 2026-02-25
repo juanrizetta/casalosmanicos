@@ -28,7 +28,14 @@ Edita ese archivo para cambiar:
 - `scripts/`: Scripts de administración del sistema.
 - `assets/`: Imágenes de alta resolución generadas para el proyecto.
 
+## 🔒 Certificado SSL (Automático)
+El script `scripts/setup_vps.sh` gestiona la obtención del certificado SSL de forma automática a través de **Let's Encrypt**. 
+
+Para que funcione correctamente:
+1. **Configura tu Dominio**: Asegúrate de que el registro A de tu dominio (ej. `casalosmanicos.com`) apunte a la IP de tu VPS.
+2. **Ejecuta el Script**: Al ejecutar `bash scripts/setup_vps.sh`, el sistema detectará el dominio, instalará Certbot y solicitará el certificado.
+3. **Renovación**: El script también deja configurada la renovación automática para que no tengas que preocuparte por el vencimiento.
+
 ## 🛠️ Operación y Mantenimiento
-- **Actualizar Imágenes**: Sustituye los archivos en `public/assets/` manteniendo los nombres o actualiza las rutas en `public/js/config.js`.
-- **Seguridad SSL**: Una vez el dominio apunte a la IP del VPS, te recomendamos ejecutar:
-  `sudo apt install certbot python3-certbot-nginx && sudo certbot --nginx`
+- **Idempotencia**: Puedes ejecutar el script de inicialización múltiples veces de forma segura; solo aplicará los cambios que falten.
+- **Actualizar Imágenes**: Sustituye los archivos en `public/assets/` manteniendo los nombres o actualiza las rutas en `js/config.js`.
