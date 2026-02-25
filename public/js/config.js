@@ -69,5 +69,12 @@ const CONFIG = {
                 ]
             }
         ]
+    },
+
+    // Google Calendar Integration
+    // You will need to provide your Google Calendar ID and an API Key.
+    calendar: {
+        googleCalendarId: "casalosmanicos@gmail.com",
+        apiKey: "AIzaSyCEzPYhNG1F5wGcyhhUzPiL5OGT3ghUR40"
     }
 };

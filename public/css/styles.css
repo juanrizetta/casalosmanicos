@@ -282,3 +282,64 @@ header.scrolled {
 .carousel-next {
     right: 10px;
 }
+
+/* Calendar Styles */
+#calendar {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    margin-top: 30px;
+    color: var(--text);
+    min-height: 600px;
+}
+
+.fc .fc-toolbar-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem !important;
+    color: var(--secondary);
+}
+
+.fc .fc-button-primary {
+    background-color: var(--secondary) !important;
+    border-color: var(--secondary) !important;
+    color: var(--text) !important;
+    transition: var(--transition);
+}
+
+.fc .fc-button-primary:hover {
+    background-color: #d4af37 !important;
+    transform: translateY(-2px);
+}
+
+.fc .fc-button-primary:disabled {
+    opacity: 0.5;
+}
+
+.fc-daygrid-event {
+    background-color: rgba(197, 165, 114, 0.3) !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 2px 5px !important;
+}
+
+.fc-event-title {
+    color: var(--secondary) !important;
+    font-weight: 600 !important;
+}
+
+.fc-day-today {
+    background: rgba(197, 165, 114, 0.1) !important;
+}
+
+@media (max-width: 768px) {
+    #calendar {
+        padding: 10px;
+    }
+
+    .fc .fc-toolbar {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
