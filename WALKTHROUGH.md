@@ -52,7 +52,20 @@ El script [setup_vps.sh](scripts/setup_vps.sh) incluye la automatización de **L
 - **Redirección**: Fuerza todo el tráfico a HTTPS de forma segura.
 - **Idempotencia**: Solo solicita el certificado si no existe o si le quedan menos de 30 días de validez.
 
-## 7. Próximos Pasos
-1. **Sincronización**: Realiza un `git pull` en tu VPS para recibir estos cambios.
-2. **Imágenes Reales**: Sustituye los placeholders en `public/assets/` con tus fotos definitivas.
-3. **Despliegue**: Asegúrate de que el dominio apunta a la IP y ejecuta el script de configuración.
+## 7. Sincronización con Google Calendar
+Hemos añadido un calendario de disponibilidad profesional que se sincroniza en tiempo real con tu cuenta de Google.
+- **Gestión Centralizada**: Solo tienes que marcar las fechas ocupadas en tu Google Calendar personal.
+- **Detección Automática**: La web detecta si falta la configuración y muestra un aviso amigable.
+- **Diseño**: Integrado con el estilo premium y responsive de la web.
+
+### Captura del Calendario
+![Calendario de disponibilidad](file:///home/juanri/.gemini/antigravity/brain/b18035ff-8eeb-4dcb-b481-bd5d59d902e4/calendar_section_view_1772056504591.png)
+
+### Video de Verificación (Fallback)
+![Demostración de carga y aviso de configuración](file:///home/juanri/.gemini/antigravity/brain/b18035ff-8eeb-4dcb-b481-bd5d59d902e4/casalosmanicos_calendar_debugheader_1772054515124.webp)
+
+## 8. Próximos Pasos
+1. **Configura tu Calendario**: Abre [config.js](public/js/config.js) e introduce tu `googleCalendarId` y tu `apiKey`.
+2. **Sincronización**: Realiza un `git pull` en tu VPS para recibir estos cambios.
+3. **Imágenes Reales**: Sustituye los placeholders en `public/assets/` con tus fotos definitivas (especialmente `hero.png`).
+4. **Despliegue**: Asegúrate de que el dominio apunta a la IP y ejecuta el script de configuración.
