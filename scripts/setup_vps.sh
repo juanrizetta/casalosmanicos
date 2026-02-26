@@ -47,9 +47,9 @@ sudo ufw allow 443/tcp
 if [[ $(sudo ufw status | grep "Status: active") == "" ]]; then echo "y" | sudo ufw enable; fi
 
 # 4. Git Sync
-PROJECT_DIR="/home/$NEW_USER/app/casalosmanicos"
-sudo mkdir -p "/home/$NEW_USER/app"
-sudo chown -R $NEW_USER:$NEW_USER "/home/$NEW_USER/app"
+PROJECT_DIR="/home/$NEW_USER/appl/casalosmanicos"
+sudo mkdir -p "/home/$NEW_USER/appl"
+sudo chown -R $NEW_USER:$NEW_USER "/home/$NEW_USER/appl"
 
 if [ ! -d "$PROJECT_DIR" ]; then
     sudo -u "$NEW_USER" git clone "https://$GITHUB_TOKEN@$REPO_URL" "$PROJECT_DIR"
@@ -116,5 +116,15 @@ fi
 
 sudo systemctl reload nginx
 
+# Ensure scripts are executable
+sudo chmod +x "$PROJECT_DIR/scripts/setup_vps.sh"
+sudo chmod +x "$PROJECT_DIR/scripts/refresh_cert.sh"
+
 echo -e "${GREEN}Done! Try visiting https://$DOMAIN${NC}"
+
 echo -e "Diagnostics: sudo netstat -tulpn | grep nginx"
+
+# Ensure weekly cron for certificate refresh (as root)
+CRON_CMD="$PROJECT_DIR/scripts/refresh_cert.sh >> /var/log/refresh_cert.log 2>&1"
+# Add cron if not already present in root's crontab
+(sudo crontab -l 2>/dev/null | grep -F "$CRON_CMD") || (sudo crontab -l 2>/dev/null; echo "@weekly $CRON_CMD") | sudo crontab -
