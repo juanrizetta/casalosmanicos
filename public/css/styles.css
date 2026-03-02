@@ -1,18 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap');
 
 :root {
-    /* Color Palette */
+    /* Color Palette (Light Mode Default) */
     --primary: #1a1a1a;
     --secondary: #c9a050;
     /* Elegant Gold */
+    --secondary-hover: #d4af37;
+    /* Hover Gold */
     --accent: #e5e5e5;
     --bg-light: #ffffff;
     --text-dark: #333333;
     --text-muted: #666666;
     --glass: rgba(255, 255, 255, 0.8);
+    --card-bg: #ffffff;
+    --calendar-bg: rgba(255, 255, 255, 0.05);
+    --calendar-border: rgba(255, 255, 255, 0.1);
+    --border-color: rgba(0, 0, 0, 0.1);
 
     /* Transitions */
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: #ffffff;
+        --secondary: #d4af37;
+        --secondary-hover: #c9a050;
+        --accent: #2a2a2a;
+        --bg-light: #121212;
+        --text-dark: #f0f0f0;
+        --text-muted: #aaaaaa;
+        --glass: rgba(18, 18, 18, 0.85);
+        --card-bg: #1e1e1e;
+        --calendar-bg: rgba(30, 30, 30, 0.5);
+        --calendar-border: rgba(255, 255, 255, 0.1);
+        --border-color: rgba(255, 255, 255, 0.1);
+    }
 }
 
 * {
@@ -79,7 +102,7 @@ header.scrolled {
     background: var(--glass);
     backdrop-filter: blur(10px);
     padding: 15px 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 10px var(--border-color);
 }
 
 .nav-content {
@@ -137,10 +160,10 @@ header.scrolled {
 }
 
 .card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px var(--border-color);
     transition: var(--transition);
 }
 
@@ -164,7 +187,7 @@ header.scrolled {
     display: inline-block;
     padding: 15px 35px;
     background: var(--primary);
-    color: white;
+    color: var(--bg-light);
     border-radius: 5px;
     font-weight: 600;
     letter-spacing: 1px;
@@ -260,8 +283,8 @@ header.scrolled {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.3);
-    color: white;
+    background: rgba(0, 0, 0, 0.4);
+    color: #ffffff;
     border: none;
     width: 40px;
     height: 40px;
@@ -285,13 +308,13 @@ header.scrolled {
 
 /* Calendar Styles */
 #calendar {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--calendar-bg);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--calendar-border);
     border-radius: 20px;
     padding: 30px;
     margin-top: 30px;
-    color: var(--text);
+    color: var(--text-dark);
     min-height: 600px;
 }
 
@@ -304,12 +327,12 @@ header.scrolled {
 .fc .fc-button-primary {
     background-color: var(--secondary) !important;
     border-color: var(--secondary) !important;
-    color: var(--text) !important;
+    color: var(--bg-light) !important;
     transition: var(--transition);
 }
 
 .fc .fc-button-primary:hover {
-    background-color: #d4af37 !important;
+    background-color: var(--secondary-hover) !important;
     transform: translateY(-2px);
 }
 
@@ -318,19 +341,20 @@ header.scrolled {
 }
 
 .fc-daygrid-event {
-    background-color: rgba(197, 165, 114, 0.3) !important;
-    border: none !important;
+    background-color: rgba(201, 160, 80, 0.2) !important;
+    /* Gold Tint Softened */
+    border: 1px solid var(--secondary) !important;
     border-radius: 4px !important;
     padding: 2px 5px !important;
 }
 
 .fc-event-title {
-    color: var(--secondary) !important;
+    color: var(--text-dark) !important;
     font-weight: 600 !important;
 }
 
 .fc-day-today {
-    background: rgba(197, 165, 114, 0.1) !important;
+    background: rgba(201, 160, 80, 0.1) !important;
 }
 
 @media (max-width: 768px) {

@@ -10,7 +10,7 @@ const CONFIG = {
     contact: {
         address: "Calle Luengo Bajo 20, Moratalla, Murcia",
         phone: "+34 600 000 000",
-        email: "casalosmanicos@gmail.es"
+        email: "casalosmanicos@gmail.com"
     },
 
     // Services / Features (Carousels)
