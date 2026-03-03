@@ -176,7 +176,18 @@
                 console.log("Cargando carruseles, precios y calendario...");
                 initCarousels();
                 initPricing();
-                initCalendar();
+
+                // Handle Calendar visibility
+                const calendarSection = document.getElementById('disponibilidad');
+                const calendarLink = document.querySelector('a[href="#disponibilidad"]');
+
+                if (CONFIG.calendar && CONFIG.calendar.show) {
+                    initCalendar();
+                } else {
+                    if (calendarSection) calendarSection.style.display = 'none';
+                    if (calendarLink) calendarLink.style.display = 'none';
+                    console.log("Calendario desactivado por configuración.");
+                }
 
             } catch (e) {
                 console.error("Error inicializando la web:", e);
@@ -280,7 +291,10 @@
 
         function initCalendar() {
             const calendarEl = document.getElementById('calendar');
-            if (!calendarEl || !CONFIG.calendar || !CONFIG.calendar.apiKey || CONFIG.calendar.apiKey === "YOUR_GOOGLE_API_KEY") {
+            // La visibilidad general se maneja en initApp, pero mantenemos guardas aquí por seguridad.
+            if (!CONFIG.calendar || !CONFIG.calendar.show) return;
+
+            if (!calendarEl || !CONFIG.calendar.apiKey || CONFIG.calendar.apiKey === "YOUR_GOOGLE_API_KEY") {
                 console.warn("Calendario no configurado o API Key pendiente.");
                 if (calendarEl) calendarEl.innerHTML = "<p style='text-align: center; color: var(--text-muted); padding: 50px;'>Calendario pendiente de configuración (API Key / ID necesarios).</p>";
                 return;

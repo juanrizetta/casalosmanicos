@@ -4,7 +4,7 @@
 const CONFIG = {
     title: "Casa Rural Los Manicos",
     tagline: "Tu Refugio en Moratalla",
-    description: "Descubre la combinación perfecta de lujo, confort y naturaleza en un espacio diseñado para tu descanso.",
+    description: "Encanto rural y confort en el centro histórico. El descanso que buscas, a un paso del Castillo. Ideal para 6 personas, maximo 8",
 
     // Contact Information
     contact: {
@@ -50,22 +50,22 @@ const CONFIG = {
     // Pricing Information
     pricing: {
         title: "Tarifas y Disponibilidad",
-        description: "Precios por noche diseñados para adaptarse a tu grupo. Estancia mínima: 2 noches.",
+        description: "Precios por noche diseñados para adaptarse a tu grupo. Estancia mínima: 2 noches. Temporada Alta: Julio, Agosto, Semana Santa, Nochevieja, Nochebuena y Puentes completos",
         seasons: [
             {
                 name: "Temporada Baja",
                 ranges: [
-                    { persons: "1 - 4 personas", price: "120€" },
-                    { persons: "5 - 6 personas", price: "150€" },
-                    { persons: "Persona extra (hasta 8)", price: "15€" }
+                    { persons: "De 1 a 4 personas", price: "120€" },
+                    { persons: "De 5 a 6 personas", price: "150€" },
+                    { persons: "De 7 a 8 personas", price: "170€" }
                 ]
             },
             {
                 name: "Temporada Alta",
                 ranges: [
-                    { persons: "1 - 4 personas", price: "150€" },
-                    { persons: "5 - 6 personas", price: "180€" },
-                    { persons: "Persona extra (hasta 8)", price: "20€" }
+                    { persons: "De 1 a 4 personas", price: "150€" },
+                    { persons: "De 5 a 6 personas", price: "180€" },
+                    { persons: "De 7 a 8 personas", price: "210€" }
                 ]
             }
         ]
@@ -74,6 +74,7 @@ const CONFIG = {
     // Google Calendar Integration
     // You will need to provide your Google Calendar ID and an API Key.
     calendar: {
+        show: false,
         googleCalendarId: "casalosmanicos@gmail.com",
         apiKey: "AIzaSyCEzPYhNG1F5wGcyhhUzPiL5OGT3ghUR40"
     }
