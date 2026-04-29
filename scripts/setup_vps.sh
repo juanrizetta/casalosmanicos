@@ -33,7 +33,8 @@ if ! id "$NEW_USER" &>/dev/null; then
 fi
 # Fix permissions for Nginx traversal
 sudo chmod o+x /home/$NEW_USER
-sudo chmod -R o+rx /home/$NEW_USER/app
+sudo mkdir -p /home/$NEW_USER/appl
+sudo chmod -R o+rx /home/$NEW_USER/appl
 
 # 2. Dependencies
 sudo apt-get update

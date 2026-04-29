@@ -10,23 +10,25 @@
         content="Disfruta de una estancia inolvidable en Casa Rural Los Manicos. Diseño moderno, todas las comodidades y un entorno espectacular.">
     <!-- Open Graph Data -->
     <meta property="og:title" content="Casa Rural Los Manicos | Alojamiento Turístico Único">
-    <meta property="og:description" content="Confort, naturaleza y diseño en Moratalla. Reserva tu escapada ideal.">
-    <meta property="og:image" content="https://casalosmanicos.com/assets/hero.png">
-    <meta property="og:url" content="https://casalosmanicos.com">
+    <meta property="og:description"
+        content="Disfruta de una estancia inolvidable en Casa Rural Los Manicos. Diseño moderno, todas las comodidades y un entorno espectacular.">
+    <meta property="og:image" content="https://casalosmanicos.es/assets/hero.png">
+    <meta property="og:url" content="https://casalosmanicos.es">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Casa Los Manicos">
     <!-- X/Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Casa Rural Los Manicos | Alojamiento Turístico Único">
-    <meta name="twitter:description" content="Confort, naturaleza y diseño moderno en Moratalla.">
-    <meta name="twitter:image" content="https://casalosmanicos.com/assets/hero.png">
+    <meta name="twitter:description"
+        content="Disfruta de una estancia inolvidable en Casa Rural Los Manicos. Diseño moderno, todas las comodidades y un entorno espectacular.">
+    <meta name="twitter:image" content="https://casalosmanicos.es/assets/hero.png">
     <!-- Favicon Support -->
     <link rel="icon" href="assets/hero.png" type="image/x-icon">
     <!-- Styles & Dependencies -->
-    <link rel="stylesheet" href="css/styles.css?v=1.4">
+    <link rel="stylesheet" href="css/styles.css?v=1.5">
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.10/index.global.min.js'></script>
-    <script src="js/config.js?v=1.2" defer></script>
+    <script src="js/config.js?v=1.3" defer></script>
 </head>
 
 <body>
@@ -261,21 +263,16 @@
                     <div class="info-item">
                         <span class="info-icon">📍</span>
                         <p style="margin: 0;">
-                            <a href="https://maps.app.goo.gl/ayeU322hm7NA36UV7" target="_blank"
-                                rel="noopener noreferrer"
-                                style="color: inherit; text-decoration: none; transition: opacity 0.3s;"
-                                onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                                Calle Luengo Bajo 20, Moratalla, Murcia
-                            </a>
+                            <a id="contact-address" href="https://maps.app.goo.gl/ayeU322hm7NA36UV7" target="_blank"
+                                rel="noopener noreferrer" class="info-link"></a>
                         </p>
                     </div>
                     <div class="info-item">
                         <span class="info-icon">📞</span>
                         <p style="margin: 0;">
-                            <a href="https://wa.me/34711218967" target="_blank" rel="noopener noreferrer"
-                                style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: opacity 0.3s;"
-                                onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                                +34 711 21 89 67
+                            <a id="contact-phone" href="#" target="_blank" rel="noopener noreferrer"
+                                class="info-link info-link-phone">
+                                <span id="contact-phone-text"></span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
                                     fill="#25D366">
                                     <path
@@ -286,7 +283,9 @@
                     </div>
                     <div class="info-item">
                         <span class="info-icon">✉️</span>
-                        <p>casalosmanicos@gmail.com</p>
+                        <p style="margin: 0;">
+                            <a id="contact-email" href="#" class="info-link"></a>
+                        </p>
                     </div>
                 </div>
 
@@ -323,7 +322,7 @@
     </main>
 
     <footer style="padding: 40px 0; text-align: center; border-top: 1px solid var(--accent); color: var(--text-muted);">
-        <p>&copy; 2026 Casa Rural Los Manicos. Todos los derechos reservados.</p>
+        <p>&copy; <span id="footer-year"></span> Casa Rural Los Manicos. Todos los derechos reservados.</p>
     </footer>
 
     <script>
@@ -369,8 +368,29 @@
                     if (priceDesc) priceDesc.innerText = CONFIG.pricing.description;
                 }
 
-                // Contact details are now handled directly in HTML with the new form structure.
-                // If you want to update them dynamically, update the info-item elements individually.
+                // Render contact info from CONFIG
+                if (CONFIG.contact) {
+                    const addr = document.getElementById('contact-address');
+                    if (addr) addr.textContent = CONFIG.contact.address || '';
+
+                    const phoneText = document.getElementById('contact-phone-text');
+                    const phoneLink = document.getElementById('contact-phone');
+                    if (CONFIG.contact.phone) {
+                        const digits = CONFIG.contact.phone.replace(/[^\d]/g, '');
+                        if (phoneText) phoneText.textContent = CONFIG.contact.phone;
+                        if (phoneLink) phoneLink.href = `https://wa.me/${digits}`;
+                    }
+
+                    const emailLink = document.getElementById('contact-email');
+                    if (emailLink && CONFIG.contact.email) {
+                        emailLink.textContent = CONFIG.contact.email;
+                        emailLink.href = `mailto:${CONFIG.contact.email}`;
+                    }
+                }
+
+                // Footer year
+                const yearEl = document.getElementById('footer-year');
+                if (yearEl) yearEl.textContent = new Date().getFullYear();
 
                 // Sync Carousels, Pricing and Calendar
                 console.log("Cargando carruseles, precios y calendario...");
@@ -396,6 +416,13 @@
             }
         }
 
+        const carouselTimers = {};
+
+        function scheduleAutoSlide(id) {
+            if (carouselTimers[id]) clearInterval(carouselTimers[id]);
+            carouselTimers[id] = setInterval(() => moveSlide(id, 1, true), 5000 + Math.random() * 2000);
+        }
+
         function initCarousels() {
             const grid = document.getElementById('carousel-grid');
             if (!grid) return;
@@ -404,36 +431,61 @@
                 const card = document.createElement('div');
                 card.className = 'card';
 
-                // Usar lazy loading para las imágenes con etiquetas <img> y mantener la estructura original de visibilidad (opacity) manejada por CSS.
-                // También añadimos aria-labels para lectores de pantalla.
-                let slidesHtml = section.images.map((img, idx) => `
-                    <div class="carousel-slide ${idx === 0 ? 'active' : ''}">
-                        <img src="${img}" alt="${section.title} - Imagen ${idx + 1}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                `).join('');
+                const container = document.createElement('div');
+                container.id = section.id;
+                container.className = 'carousel-container';
 
-                let dotsHtml = section.images.map((_, idx) => `
-                    <button class="carousel-dot ${idx === 0 ? 'active' : ''}" onclick="setSlide('${section.id}', ${idx})" aria-label="Ir a diapositiva ${idx + 1}"></button>
-                `).join('');
+                section.images.forEach((img, idx) => {
+                    const slide = document.createElement('div');
+                    slide.className = 'carousel-slide' + (idx === 0 ? ' active' : '');
+                    const imgEl = document.createElement('img');
+                    imgEl.src = img;
+                    imgEl.alt = `${section.title} - Imagen ${idx + 1}`;
+                    imgEl.loading = 'lazy';
+                    imgEl.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+                    slide.appendChild(imgEl);
+                    container.appendChild(slide);
+                });
 
-                card.innerHTML = `
-                    <div id="${section.id}" class="carousel-container">
-                        ${slidesHtml}
-                        <button class="carousel-btn carousel-prev" onclick="moveSlide('${section.id}', -1)" aria-label="Imagen anterior">&#10094;</button>
-                        <button class="carousel-btn carousel-next" onclick="moveSlide('${section.id}', 1)" aria-label="Siguiente imagen">&#10095;</button>
-                        <div class="carousel-controls">
-                            ${dotsHtml}
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <h3>${section.title}</h3>
-                        <p>${section.text}</p>
-                    </div>
-                `;
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'carousel-btn carousel-prev';
+                prevBtn.setAttribute('aria-label', 'Imagen anterior');
+                prevBtn.innerHTML = '&#10094;';
+                prevBtn.addEventListener('click', () => moveSlide(section.id, -1));
+                container.appendChild(prevBtn);
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'carousel-btn carousel-next';
+                nextBtn.setAttribute('aria-label', 'Siguiente imagen');
+                nextBtn.innerHTML = '&#10095;';
+                nextBtn.addEventListener('click', () => moveSlide(section.id, 1));
+                container.appendChild(nextBtn);
+
+                const controls = document.createElement('div');
+                controls.className = 'carousel-controls';
+                section.images.forEach((_, idx) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'carousel-dot' + (idx === 0 ? ' active' : '');
+                    dot.setAttribute('aria-label', `Ir a diapositiva ${idx + 1}`);
+                    dot.addEventListener('click', () => setSlide(section.id, idx));
+                    controls.appendChild(dot);
+                });
+                container.appendChild(controls);
+
+                const body = document.createElement('div');
+                body.className = 'card-body';
+                const h3 = document.createElement('h3');
+                h3.textContent = section.title;
+                const p = document.createElement('p');
+                p.textContent = section.text;
+                body.appendChild(h3);
+                body.appendChild(p);
+
+                card.appendChild(container);
+                card.appendChild(body);
                 grid.appendChild(card);
 
-                // Auto slide
-                setInterval(() => moveSlide(section.id, 1), 5000 + Math.random() * 2000);
+                scheduleAutoSlide(section.id);
             });
         }
 
@@ -445,48 +497,63 @@
                 const card = document.createElement('div');
                 card.className = 'pricing-card';
 
-                const tableRows = season.ranges.map(range => `
-                    <tr>
-                        <td>${range.persons}</td>
-                        <td>${range.price}</td>
-                    </tr>
-                `).join('');
+                const h3 = document.createElement('h3');
+                h3.textContent = season.name;
+                card.appendChild(h3);
 
-                card.innerHTML = `
-                    <h3>${season.name}</h3>
-                    <table class="pricing-table">
-                        ${tableRows}
-                    </table>
-                `;
+                const table = document.createElement('table');
+                table.className = 'pricing-table';
+                const tbody = document.createElement('tbody');
+                season.ranges.forEach(range => {
+                    const tr = document.createElement('tr');
+                    const tdP = document.createElement('td');
+                    tdP.textContent = range.persons;
+                    const tdPr = document.createElement('td');
+                    tdPr.textContent = range.price;
+                    tr.appendChild(tdP);
+                    tr.appendChild(tdPr);
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+                card.appendChild(table);
                 grid.appendChild(card);
             });
         }
 
-        function moveSlide(id, direction) {
+        function moveSlide(id, direction, fromAuto = false) {
             const container = document.getElementById(id);
+            if (!container) return;
             const slides = container.querySelectorAll('.carousel-slide');
             const dots = container.querySelectorAll('.carousel-dot');
+            if (!slides.length) return;
             let currentIdx = Array.from(slides).findIndex(s => s.classList.contains('active'));
+            if (currentIdx < 0) currentIdx = 0;
 
             slides[currentIdx].classList.remove('active');
-            dots[currentIdx].classList.remove('active');
+            if (dots[currentIdx]) dots[currentIdx].classList.remove('active');
 
             currentIdx = (currentIdx + direction + slides.length) % slides.length;
 
             slides[currentIdx].classList.add('active');
-            dots[currentIdx].classList.add('active');
+            if (dots[currentIdx]) dots[currentIdx].classList.add('active');
+
+            if (!fromAuto) scheduleAutoSlide(id);
         }
 
         function setSlide(id, index) {
             const container = document.getElementById(id);
+            if (!container) return;
             const slides = container.querySelectorAll('.carousel-slide');
             const dots = container.querySelectorAll('.carousel-dot');
+            if (!slides[index]) return;
 
             slides.forEach(s => s.classList.remove('active'));
             dots.forEach(d => d.classList.remove('active'));
 
             slides[index].classList.add('active');
-            dots[index].classList.add('active');
+            if (dots[index]) dots[index].classList.add('active');
+
+            scheduleAutoSlide(id);
         }
 
         function initCalendar() {

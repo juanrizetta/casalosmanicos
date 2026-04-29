@@ -465,6 +465,22 @@ header.scrolled {
     border-radius: 50%;
 }
 
+.info-link {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+.info-link:hover {
+    opacity: 0.8;
+}
+
+.info-link-phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .contact-form {
     background: var(--card-bg);
     padding: 40px;

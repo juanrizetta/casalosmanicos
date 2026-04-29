@@ -77,6 +77,6 @@ const CONFIG = {
     calendar: {
         show: false,
         googleCalendarId: "casalosmanicos@gmail.com",
-        apiKey: "AIzaSyCEzPYhNG1F5wGcyhhUzPiL5OGT3ghUR40"
+        apiKey: "YOUR_GOOGLE_API_KEY"
     }
 };
