@@ -1,0 +1,757 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a2e">
+<title>El 5000 🎲</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body { padding: 16px; }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 {
+    text-align: center;
+    font-size: clamp(28px, 7vw, 40px);
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #f59e0b, #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+  }
+
+  .scoreboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .player-card {
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: all 0.3s;
+  }
+  .player-card.active-0 {
+    background: linear-gradient(135deg, #3b82f644, #3b82f622);
+    border-color: #3b82f6;
+    transform: scale(1.02);
+  }
+  .player-card.active-1 {
+    background: linear-gradient(135deg, #ef444444, #ef444422);
+    border-color: #ef4444;
+    transform: scale(1.02);
+  }
+  .player-label { font-size: 13px; opacity: 0.7; margin-bottom: 4px; }
+  .player-score { font-size: 30px; font-weight: bold; }
+  .player-score.c0 { color: #3b82f6; }
+  .player-score.c1 { color: #ef4444; }
+  .progress-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .progress-fill { height: 100%; transition: width 0.5s; }
+  .progress-fill.c0 { background: #3b82f6; }
+  .progress-fill.c1 { background: #ef4444; }
+  .meta-text { font-size: 11px; opacity: 0.5; margin-top: 4px; }
+
+  .turn-score-box {
+    text-align: center;
+    padding: 12px;
+    background: rgba(245, 158, 11, 0.15);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+  .turn-score-label { font-size: 13px; opacity: 0.8; }
+  .turn-score-value { font-size: 28px; font-weight: bold; color: #f59e0b; }
+
+  .message-box {
+    text-align: center;
+    padding: 12px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+  }
+
+  .dice-zone {
+    background: rgba(0,0,0,0.3);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 18px;
+    border: 2px solid rgba(255,255,255,0.1);
+  }
+  .dice-section-label {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-bottom: 8px;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  .dice-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-height: 90px;
+  }
+  .dice-row.kept { margin-bottom: 14px; }
+
+  .die {
+    width: 72px;
+    height: 72px;
+    border-radius: 13px;
+    background: linear-gradient(145deg, #ffffff, #e6e6e6);
+    box-shadow: inset 0 -4px 8px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s;
+  }
+  .die.small { transform: scale(0.75); opacity: 0.75; }
+  .die.scored { opacity: 0.35; filter: grayscale(0.5); }
+  .die.rolling { animation: shake 0.08s infinite; }
+  @keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+  }
+  .die-letter {
+    font-size: 40px;
+    font-weight: bold;
+    font-family: Georgia, serif;
+    color: #1a1a1a;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .die-dot {
+    position: absolute;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .die-dot.black { background: #1a1a1a; width: 8px; height: 8px; }
+  .die-dot.red { background: #d11; width: 8px; height: 8px; }
+  .die-ace {
+    width: 33px;
+    height: 33px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ff4444, #a00);
+    box-shadow: inset 0 -3px 6px rgba(0,0,0,0.3);
+  }
+
+  .breakdown {
+    margin-top: 14px;
+    padding: 10px;
+    background: rgba(59, 130, 246, 0.15);
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .breakdown-title { font-weight: bold; margin-bottom: 4px; }
+
+  .buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  button {
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    min-width: 140px;
+  }
+  button:active:not(:disabled) { transform: scale(0.96); }
+  .btn-roll {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  }
+  .btn-stand {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  }
+  .btn-reset {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  }
+  button:disabled {
+    background: #444 !important;
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  details {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 13px;
+  }
+  summary { cursor: pointer; font-weight: bold; padding: 4px; }
+  .rules-grid {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .rules-text {
+    margin-top: 10px;
+    opacity: 0.85;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 500px) {
+    .die { width: 60px; height: 60px; border-radius: 11px; }
+    .die-letter { font-size: 34px; }
+    .die-dot.black, .die-dot.red { width: 7px; height: 7px; }
+    .die-ace { width: 28px; height: 28px; }
+    button { padding: 12px 20px; font-size: 15px; min-width: 130px; }
+    .player-score { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎲 El 5000 🎲</h1>
+
+    <div class="scoreboard" id="scoreboard"></div>
+
+    <div class="turn-score-box">
+      <div class="turn-score-label">Puntos acumulados este turno</div>
+      <div class="turn-score-value" id="turn-score">0</div>
+    </div>
+
+    <div class="message-box" id="message">¡Comienza el Jugador 1! Para entrar necesitas plantarte con 500+ puntos.</div>
+
+    <div class="dice-zone">
+      <div id="kept-container" style="display:none;">
+        <div class="dice-section-label">DADOS APARTADOS (PUNTUADOS)</div>
+        <div class="dice-row kept" id="kept-dice"></div>
+      </div>
+      <div class="dice-section-label" id="active-label">DADOS A LANZAR</div>
+      <div class="dice-row" id="active-dice"></div>
+      <div class="breakdown" id="breakdown" style="display:none;">
+        <div class="breakdown-title">Última tirada:</div>
+        <div id="breakdown-items"></div>
+      </div>
+    </div>
+
+    <div class="buttons" id="buttons">
+      <button class="btn-roll" id="btn-roll">🎲 Lanzar</button>
+      <button class="btn-stand" id="btn-stand" disabled>✋ Plantarse (0)</button>
+    </div>
+
+    <details>
+      <summary>📖 Tabla de puntuación y reglas</summary>
+      <div class="rules-grid">
+        <div>• As (individual): <b>100</b></div>
+        <div>• K (individual): <b>50</b></div>
+        <div>• Trío de negros (9): <b>100</b></div>
+        <div>• Trío de rojos (10): <b>200</b></div>
+        <div>• Trío de J: <b>300</b></div>
+        <div>• Trío de Q: <b>400</b></div>
+        <div>• Trío de K: <b>500</b></div>
+        <div>• Trío de Ases: <b>1000</b></div>
+      </div>
+      <div class="rules-text">
+        <b>Reglas:</b> Lanza los 5 dados. Los dados que puntúan se apartan y relanzas los demás. Si una tirada no puntúa nada, pierdes todo lo acumulado en el turno. Si los 5 dados puntúan, vuelves a lanzar los 5 ("hot dice"). Solo puedes plantarte si tu acumulado es múltiplo de 100.
+        <br><br>
+        <b>🚪 Entrada:</b> Para "entrar" en la partida, la primera vez que te plantes debes tener al menos <b>500 puntos</b> acumulados en ese turno.
+        <br><br>
+        <b>🎯 Victoria:</b> Gana el primero que llegue a <b>5000 exactos</b>. Si al plantarte te pasarías de 5000, pierdes el turno y no sumas nada.
+      </div>
+    </details>
+  </div>
+
+<script>
+  const FACES = ['9', '10', 'J', 'Q', 'K', 'A'];
+  const rollDie = () => FACES[Math.floor(Math.random() * 6)];
+  const rollDice = (n) => Array.from({ length: n }, rollDie);
+
+  // Estado del juego
+  let state = {
+    totals: [0, 0],
+    hasEntered: [false, false], // Si ya ha hecho su primer plante de 500+
+    currentPlayer: 0,
+    turnScore: 0,
+    dice: [],
+    keptDice: [],
+    activeDiceCount: 5,
+    rolling: false,
+    lastBreakdown: [],
+    lastUsedIndices: new Set(),
+    turnStarted: false,
+    gameOver: false,
+    winner: null,
+  };
+
+  // Crea el DOM de un dado
+  function createDieElement(value, opts = {}) {
+    const die = document.createElement('div');
+    die.className = 'die';
+    if (opts.small) die.classList.add('small');
+    if (opts.scored) die.classList.add('scored');
+    if (opts.rolling) die.classList.add('rolling');
+
+    if (value === '9') {
+      const positions = [
+        [25, 25], [50, 25], [75, 25],
+        [50, 50],
+        [25, 75], [50, 75], [75, 75],
+      ];
+      positions.forEach(([x, y]) => {
+        const dot = document.createElement('div');
+        dot.className = 'die-dot black';
+        dot.style.left = x + '%';
+        dot.style.top = y + '%';
+        die.appendChild(dot);
+      });
+    } else if (value === '10') {
+      const positions = [
+        [25, 20], [50, 20], [75, 20],
+        [35, 50], [65, 50],
+        [25, 80], [50, 80], [75, 80],
+      ];
+      positions.forEach(([x, y]) => {
+        const dot = document.createElement('div');
+        dot.className = 'die-dot red';
+        dot.style.left = x + '%';
+        dot.style.top = y + '%';
+        die.appendChild(dot);
+      });
+    } else if (value === 'A') {
+      const ace = document.createElement('div');
+      ace.className = 'die-ace';
+      die.appendChild(ace);
+    } else {
+      const letter = document.createElement('span');
+      letter.className = 'die-letter';
+      letter.textContent = value;
+      die.appendChild(letter);
+    }
+    return die;
+  }
+
+  // Calcula la puntuación
+  function calculateScore(dice) {
+    const usedIndices = new Set();
+    let score = 0;
+    const breakdown = [];
+
+    const trioOrder = [
+      { face: 'A', points: 1000, name: 'Trío de Ases' },
+      { face: 'K', points: 500, name: 'Trío de K' },
+      { face: 'Q', points: 400, name: 'Trío de Q' },
+      { face: 'J', points: 300, name: 'Trío de J' },
+      { face: '10', points: 200, name: 'Trío de rojos (10)' },
+      { face: '9', points: 100, name: 'Trío de negros (9)' },
+    ];
+
+    for (const { face, points, name } of trioOrder) {
+      const matches = dice
+        .map((d, i) => (d === face && !usedIndices.has(i) ? i : -1))
+        .filter(i => i !== -1);
+      if (matches.length >= 3) {
+        matches.slice(0, 3).forEach(i => usedIndices.add(i));
+        score += points;
+        breakdown.push(name + ': +' + points);
+      }
+    }
+
+    dice.forEach((d, i) => {
+      if (d === 'A' && !usedIndices.has(i)) {
+        usedIndices.add(i);
+        score += 100;
+        breakdown.push('As: +100');
+      }
+    });
+
+    dice.forEach((d, i) => {
+      if (d === 'K' && !usedIndices.has(i)) {
+        usedIndices.add(i);
+        score += 50;
+        breakdown.push('K: +50');
+      }
+    });
+
+    return { score, usedIndices, breakdown };
+  }
+
+  // Renderiza el marcador
+  function renderScoreboard() {
+    const board = document.getElementById('scoreboard');
+    board.innerHTML = '';
+    for (let p = 0; p < 2; p++) {
+      const card = document.createElement('div');
+      card.className = 'player-card';
+      if (state.currentPlayer === p && !state.gameOver) {
+        card.classList.add('active-' + p);
+      }
+      const activeText = (state.currentPlayer === p && !state.gameOver) ? ' ← TURNO' : '';
+      const winText = state.winner === p ? ' 👑' : '';
+      const entryText = !state.hasEntered[p] ? ' 🚪 (sin entrar)' : '';
+      card.innerHTML =
+        '<div class="player-label">Jugador ' + (p + 1) + activeText + winText + entryText + '</div>' +
+        '<div class="player-score c' + p + '">' + state.totals[p] + '</div>' +
+        '<div class="progress-bar"><div class="progress-fill c' + p + '" style="width:' + Math.min(100, (state.totals[p] / 5000) * 100) + '%"></div></div>' +
+        '<div class="meta-text">Meta: 5000 exactos</div>';
+      board.appendChild(card);
+    }
+  }
+
+  // Renderiza los dados
+  function renderDice() {
+    const keptContainer = document.getElementById('kept-container');
+    const keptDiv = document.getElementById('kept-dice');
+    const activeDiv = document.getElementById('active-dice');
+    const activeLabel = document.getElementById('active-label');
+
+    keptDiv.innerHTML = '';
+    activeDiv.innerHTML = '';
+
+    if (state.keptDice.length > 0) {
+      keptContainer.style.display = 'block';
+      state.keptDice.forEach(v => {
+        keptDiv.appendChild(createDieElement(v, { small: true }));
+      });
+    } else {
+      keptContainer.style.display = 'none';
+    }
+
+    if (state.activeDiceCount === 5 && state.keptDice.length === 0) {
+      activeLabel.textContent = 'DADOS A LANZAR';
+    } else {
+      activeLabel.textContent = 'DADOS EN JUEGO (' + state.activeDiceCount + ')';
+    }
+
+    if (state.dice.length === 0) {
+      // Mostrar 5 placeholders
+      for (let i = 0; i < state.activeDiceCount; i++) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'die';
+        placeholder.style.opacity = '0.3';
+        placeholder.innerHTML = '<span class="die-letter">?</span>';
+        activeDiv.appendChild(placeholder);
+      }
+    } else {
+      state.dice.forEach((v, i) => {
+        const scored = state.lastUsedIndices.has(i);
+        activeDiv.appendChild(createDieElement(v, {
+          scored: scored && !state.rolling,
+          rolling: state.rolling,
+        }));
+      });
+    }
+  }
+
+  // Renderiza el desglose
+  function renderBreakdown() {
+    const box = document.getElementById('breakdown');
+    const items = document.getElementById('breakdown-items');
+    if (state.lastBreakdown.length === 0) {
+      box.style.display = 'none';
+      return;
+    }
+    box.style.display = 'block';
+    items.innerHTML = state.lastBreakdown.map(b => '• ' + b).join('<br>');
+  }
+
+  // Renderiza los botones
+  function renderButtons() {
+    const buttons = document.getElementById('buttons');
+    buttons.innerHTML = '';
+    if (state.gameOver) {
+      const btn = document.createElement('button');
+      btn.className = 'btn-reset';
+      btn.textContent = '🔄 Nueva Partida';
+      btn.onclick = resetGame;
+      buttons.appendChild(btn);
+    } else {
+      const btnRoll = document.createElement('button');
+      btnRoll.className = 'btn-roll';
+      btnRoll.textContent = '🎲 Lanzar';
+      btnRoll.disabled = state.rolling;
+      btnRoll.onclick = rollTurn;
+      buttons.appendChild(btnRoll);
+
+      const canStand = state.turnScore > 0 && state.turnScore % 100 === 0;
+      const btnStand = document.createElement('button');
+      btnStand.className = 'btn-stand';
+      btnStand.textContent = '✋ Plantarse (' + state.turnScore + ')';
+      btnStand.disabled = !canStand || state.rolling;
+      btnStand.onclick = stand;
+      buttons.appendChild(btnStand);
+    }
+  }
+
+  // Renderiza todo
+  function render() {
+    renderScoreboard();
+    document.getElementById('turn-score').textContent = state.turnScore;
+    renderDice();
+    renderBreakdown();
+    renderButtons();
+  }
+
+  function setMessage(txt) {
+    document.getElementById('message').textContent = txt;
+  }
+
+  // Lanzar dados
+  function rollTurn() {
+    if (state.gameOver || state.rolling) return;
+
+    state.rolling = true;
+    state.turnStarted = true;
+    setMessage('Lanzando dados...');
+
+    // Animación
+    let count = 0;
+    const anim = setInterval(() => {
+      state.dice = rollDice(state.activeDiceCount);
+      state.lastUsedIndices = new Set();
+      render();
+      count++;
+      if (count >= 8) {
+        clearInterval(anim);
+        finishRoll();
+      }
+    }, 80);
+  }
+
+  function finishRoll() {
+    const newDice = rollDice(state.activeDiceCount);
+    state.dice = newDice;
+
+    const { score, usedIndices, breakdown } = calculateScore(newDice);
+    state.lastBreakdown = breakdown;
+    state.lastUsedIndices = usedIndices;
+    state.rolling = false;
+
+    if (score === 0) {
+      const next = (state.currentPlayer + 1) % 2;
+      setMessage('¡Ningún dado puntuó! Pierdes ' + state.turnScore + ' puntos acumulados. Turno para Jugador ' + (next + 1) + '.');
+      state.turnScore = 0;
+      state.keptDice = [];
+      state.activeDiceCount = 5;
+      state.turnStarted = false;
+      render();
+      setTimeout(() => {
+        state.currentPlayer = next;
+        state.dice = [];
+        state.lastUsedIndices = new Set();
+        state.lastBreakdown = [];
+        setMessage('Turno del Jugador ' + (next + 1) + '. Pulsa "Lanzar".');
+        render();
+      }, 2500);
+      return;
+    }
+
+    // Guardar dados puntuados en keptDice para la próxima tirada
+    const newKept = [...state.keptDice];
+    newDice.forEach((d, i) => {
+      if (usedIndices.has(i)) newKept.push(d);
+    });
+
+    state.turnScore += score;
+    // No actualizamos keptDice todavía para que se vean los dados atenuados en la tirada actual
+    // Los moveremos cuando se pulse "Lanzar" de nuevo
+    state._pendingKept = newKept;
+    state._pendingActive = state.activeDiceCount - usedIndices.size;
+
+    const remaining = state.activeDiceCount - usedIndices.size;
+
+    if (remaining === 0) {
+      setMessage('¡HOT DICE! Los 5 dados puntuaron (+' + score + '). Turno acumulado: ' + state.turnScore + '. Lanza los 5 de nuevo o plántate.');
+    } else {
+      let extra = '';
+      if (state.turnScore % 100 !== 0) {
+        extra = ' (necesitas múltiplo de 100)';
+      } else if (!state.hasEntered[state.currentPlayer] && state.turnScore < 500) {
+        extra = ' (necesitas 500+ para entrar)';
+      } else {
+        const projected = state.totals[state.currentPlayer] + state.turnScore;
+        if (projected > 5000) {
+          extra = ' (⚠️ te pasarías de 5000: ' + projected + ')';
+        } else if (projected === 5000) {
+          extra = ' (¡5000 EXACTOS - ganarías!)';
+        }
+      }
+      setMessage('+' + score + ' puntos. Turno acumulado: ' + state.turnScore + '. Lanza los ' + remaining + ' restantes o plántate' + extra + '.');
+    }
+    render();
+  }
+
+  // Sobrescribir rollTurn para procesar los kept pendientes
+  const originalRollTurn = rollTurn;
+  function rollTurnWrapped() {
+    if (state.gameOver || state.rolling) return;
+    // Aplicar los kept pendientes antes de lanzar
+    if (state._pendingKept) {
+      state.keptDice = state._pendingKept;
+      if (state._pendingActive === 0) {
+        // Hot dice: relanzar los 5
+        state.activeDiceCount = 5;
+        state.keptDice = [];
+      } else {
+        state.activeDiceCount = state._pendingActive;
+      }
+      state._pendingKept = null;
+      state._pendingActive = null;
+    }
+    originalRollTurn();
+  }
+
+  function stand() {
+    const isMultipleOf100 = state.turnScore > 0 && state.turnScore % 100 === 0;
+    const hasEntered = state.hasEntered[state.currentPlayer];
+    const meetsEntry = hasEntered || state.turnScore >= 500;
+    const canStand = isMultipleOf100 && meetsEntry;
+    if (!canStand || state.gameOver) return;
+
+    const newTotal = state.totals[state.currentPlayer] + state.turnScore;
+
+    // Si se pasa de 5000, pierde el turno
+    if (newTotal > 5000) {
+      const next = (state.currentPlayer + 1) % 2;
+      setMessage('💥 ¡Te pasaste de 5000! (' + newTotal + '). Pierdes el turno. Turno del Jugador ' + (next + 1) + '.');
+      state.turnScore = 0;
+      state.keptDice = [];
+      state.activeDiceCount = 5;
+      state.turnStarted = false;
+      state.dice = [];
+      state.lastBreakdown = [];
+      state.lastUsedIndices = new Set();
+      state._pendingKept = null;
+      state._pendingActive = null;
+      render();
+      setTimeout(() => {
+        state.currentPlayer = next;
+        setMessage('Turno del Jugador ' + (next + 1) + '. Pulsa "Lanzar".');
+        render();
+      }, 2500);
+      return;
+    }
+
+    // Plantada válida
+    state.totals[state.currentPlayer] = newTotal;
+    if (!hasEntered) {
+      state.hasEntered[state.currentPlayer] = true;
+    }
+
+    // Victoria solo si llega a 5000 exactos
+    if (newTotal === 5000) {
+      state.gameOver = true;
+      state.winner = state.currentPlayer;
+      setMessage('🎉 ¡Jugador ' + (state.currentPlayer + 1) + ' gana con 5000 exactos!');
+      render();
+      return;
+    }
+
+    const next = (state.currentPlayer + 1) % 2;
+    const entryMsg = !hasEntered ? ' (¡ha entrado!)' : '';
+    setMessage('Jugador ' + (state.currentPlayer + 1) + ' se planta con ' + state.turnScore + ' puntos' + entryMsg + '. Turno del Jugador ' + (next + 1) + '.');
+    state.currentPlayer = next;
+    state.turnScore = 0;
+    state.keptDice = [];
+    state.activeDiceCount = 5;
+    state.turnStarted = false;
+    state.dice = [];
+    state.lastBreakdown = [];
+    state.lastUsedIndices = new Set();
+    state._pendingKept = null;
+    state._pendingActive = null;
+    render();
+  }
+
+  function resetGame() {
+    state = {
+      totals: [0, 0],
+      hasEntered: [false, false],
+      currentPlayer: 0,
+      turnScore: 0,
+      dice: [],
+      keptDice: [],
+      activeDiceCount: 5,
+      rolling: false,
+      lastBreakdown: [],
+      lastUsedIndices: new Set(),
+      turnStarted: false,
+      gameOver: false,
+      winner: null,
+    };
+    setMessage('¡Comienza el Jugador 1! Para entrar necesitas plantarte con 500+ puntos.');
+    render();
+  }
+
+  // Reemplazar el botón roll para usar el wrapper
+  document.addEventListener('click', function(e) {}, false);
+
+  // Necesitamos que renderButtons use rollTurnWrapped en vez de rollTurn
+  const _renderButtons = renderButtons;
+  renderButtons = function() {
+    const buttons = document.getElementById('buttons');
+    buttons.innerHTML = '';
+    if (state.gameOver) {
+      const btn = document.createElement('button');
+      btn.className = 'btn-reset';
+      btn.textContent = '🔄 Nueva Partida';
+      btn.onclick = resetGame;
+      buttons.appendChild(btn);
+    } else {
+      const btnRoll = document.createElement('button');
+      btnRoll.className = 'btn-roll';
+      btnRoll.textContent = '🎲 Lanzar';
+      btnRoll.disabled = state.rolling;
+      btnRoll.onclick = rollTurnWrapped;
+      buttons.appendChild(btnRoll);
+
+      const isMultipleOf100 = state.turnScore > 0 && state.turnScore % 100 === 0;
+      const hasEntered = state.hasEntered[state.currentPlayer];
+      const meetsEntry = hasEntered || state.turnScore >= 500;
+      const canStand = isMultipleOf100 && meetsEntry;
+
+      const standLabel = !hasEntered && !meetsEntry
+        ? '✋ Plantarse (' + state.turnScore + '/500)'
+        : '✋ Plantarse (' + state.turnScore + ')';
+
+      const btnStand = document.createElement('button');
+      btnStand.className = 'btn-stand';
+      btnStand.textContent = standLabel;
+      btnStand.disabled = !canStand || state.rolling;
+      btnStand.onclick = stand;
+      buttons.appendChild(btnStand);
+    }
+  };
+
+  // Inicializar
+  render();
+</script>
+</body>
+</html>
